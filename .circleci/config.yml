@@ -3,12 +3,15 @@ version: 2.1
 orbs:
   python: circleci/python@3.1.0
 
+executors:
+  default:
+    docker:
+      - image: cimg/python:3.13
+
 jobs:
 
   build:
-    executor:
-      name: python/default
-      tag: "3.13"
+    executor: default
 
     steps:
       - checkout
