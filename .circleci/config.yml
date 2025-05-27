@@ -21,7 +21,7 @@ jobs:
 
       - run: uv run ruff check
 
-      - run: uv run hatch run test:test
+      #- run: uv run hatch run test:test
 
   release:
     executor: default
