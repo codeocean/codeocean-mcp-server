@@ -6,7 +6,8 @@ orbs:
 jobs:
 
   build:
-    executor: python/default:
+    executor:
+      name: python/default
       tag: 3.13
 
     steps:
