@@ -1,0 +1,50 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@3.1.0
+
+jobs:
+
+  build:
+    executor: python/default:
+      tag: 3.13
+
+    steps:
+      - checkout
+
+      - python/install-packages:
+          pkg-manager: uv
+
+      - run: uv run ruff check
+
+      - run: uv run hatch run test:test
+
+  release:
+    executor: default
+
+    steps:
+      - checkout
+
+      - python/install-packages:
+          pkg-manager: uv
+
+      - run: uv run hatch build
+
+      - run: uv run hatch publish
+
+workflows:
+
+  build:
+    jobs:
+      - build:
+          filters:
+            tags:
+              ignore: /.*/
+      - release:
+          context:
+            - pypi-creds
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
