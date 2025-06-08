@@ -3,7 +3,7 @@ import os
 from codeocean import CodeOcean
 from mcp.server.fastmcp import FastMCP
 
-from codeocean_mcp_server.tools import capsules, data_assets
+from codeocean_mcp_server.tools import capsules, computations, data_assets
 
 
 def main():
@@ -23,6 +23,7 @@ def main():
 
     capsules.add_tools(mcp, client)
     data_assets.add_tools(mcp, client)
+    computations.add_tools(mcp, client)
 
     mcp.run()
 
