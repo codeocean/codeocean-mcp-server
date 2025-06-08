@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
-load_dotenv()
+# Load .env file from tests directory
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 SCRIPT = str(
     Path(__file__).parent.parent / "src" / "codeocean_mcp_server" / "server.py"
 )
