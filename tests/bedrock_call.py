@@ -35,8 +35,7 @@ def _sanitize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
 # Public converter                                                            #
 # --------------------------------------------------------------------------- #
 def convert_tools_format_to_bedrock(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Convert MCP-style tool descriptors to the structure required by Bedrock.
+    """Convert MCP-style tool descriptors to the structure required by Bedrock.
 
     Expected input for each tool:
         {"name": str, "description": str, "parameters": dict}
