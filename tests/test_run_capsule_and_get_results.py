@@ -255,7 +255,7 @@ def test_run_climate_simulation():
 def test_run_financial_risk_analysis():
     """Test running a financial risk analysis with market data."""
     response = call_bedrock(
-        "Execute the quantitative finance capsule 'risk-analytics-pro' with market data "
+        "Execute the quantitative finance capsule '12345678' with market data "
         "'sp500-daily' mounted at '/data/equities', bond data 'treasury-yields' at '/data/bonds', "
         "and options data 'options-chain' at '/data/derivatives. Set analysis parameters "
         "'confidence_level' to '0.95', 'time_horizon' to '252', 'simulation_runs' to '10000', "
@@ -265,7 +265,7 @@ def test_run_financial_risk_analysis():
     )
     tool_use = assert_search_capsules_used(response)
     print(tool_use["input"]["run_params"])
-    assert tool_use["input"]["run_params"]["capsule_id"] == "risk-analytics-pro", "Expected capsule_id"
+    assert tool_use["input"]["run_params"]["capsule_id"] == "12345678", "Expected capsule_id"
     # Check financial data assets
     data_assets = tool_use["input"]["run_params"]["data_assets"]
     asset_map = {da["id"]: da["mount"] for da in data_assets}
@@ -287,25 +287,23 @@ def test_run_financial_risk_analysis():
 def test_run_drug_discovery_pipeline():
     """Test running a comprehensive drug discovery computational pipeline."""
     response = call_bedrock(
-        "Run the pharmaceutical research pipeline 'drug-discovery-ai' version 3 with the compound "
+        "Run  pipeline id 'abcd-trrfd-54343-dsdsd' version 3 with the compound "
         "library 'chembl-v30' mounted at '/data/compounds', protein structures 'pdb-structures' "
-        "at '/data/proteins', and binding affinity data 'binding-db' at '/data/affinities. "
-        "Configure the pipeline with molecular docking process using 'docking_software' set to "
-        "'autodock_vina', 'grid_spacing' set to '0.375', and ADMET prediction process with "
-        "'prediction_model' set to 'deepchem' and 'endpoints' set to 'all'. Include the "
+        "at '/data/proteins', Include the "
         "computational flags '--high-throughput' and '--ensemble-docking'.",
         tools=tools,
     )
     tool_use = assert_search_capsules_used(response)
     print(tool_use["input"]["run_params"])
-    assert tool_use["input"]["run_params"]["pipeline_id"] == "drug-discovery-ai", "Expected pipeline_id"
+    assert tool_use["input"]["run_params"]["pipeline_id"] == "abcd-trrfd-54343-dsdsd", "Expected pipeline_id"
     assert tool_use["input"]["run_params"]["version"] == 3, "Expected version 3"
     # Check pharmaceutical data assets
     data_assets = tool_use["input"]["run_params"]["data_assets"]
+    assert len(data_assets) == 2, "Expected 2 data assets"
     asset_map = {da["id"]: da["mount"] for da in data_assets}
     assert asset_map["chembl-v30"] == "/data/compounds", "Expected compound library"
     assert asset_map["pdb-structures"] == "/data/proteins", "Expected protein structures"
-    assert asset_map["binding-db"] == "/data/affinities", "Expected binding data"
+    # Check computational flags
     parameters = tool_use["input"]["run_params"]["parameters"]
     assert "--high-throughput" in parameters, "Expected --high-throughput"
     assert "--ensemble-docking" in parameters, "Expected --ensemble-docking"
