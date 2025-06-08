@@ -13,7 +13,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "boto3>=1.38.29",
+    "boto3>=1.38.32",
     "codeocean>=0.5.0",
     "fastmcp>=2.5.1",
     "langgraph>=0.4.8",
@@ -26,6 +26,8 @@ license = "MIT"
 dev = [
     "hatch>=1.14.1",
     "ruff>=0.11.11",
+    "pytest>=8.0.0",
+    "pytest-xdist>=3.0.0",
 ]
 
 [project.urls]
@@ -49,7 +51,7 @@ exclude = [
 packages = ["src/codeocean_mcp_server"]
 
 [tool.hatch.envs.default.scripts]
-test = "python -m unittest -v"
+test = "pytest -n auto"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13"]
@@ -60,3 +62,10 @@ line-length = 120
 [tool.ruff.lint]
 select = ["C", "D", "E", "F", "I", "W"]
 ignore = ["D100", "D104"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:botocore.auth",
+    "ignore::DeprecationWarning:botocore.*",
+]
+addopts = "-n auto --dist=loadscope"
