@@ -1,14 +1,4 @@
 # bedrock_call.py
-"""
-Minimal Bedrock wrapper that supports tool use via the Converse API.
-
-Changes from the previous version
----------------------------------
-* convert_tools_format_to_bedrock() now sanitises the incoming JSON-Schema:
-  - keeps only "type", "properties", "required", "description", "title".
-  - drops "$defs", "$ref", or any other unsupported keys that trigger the
-    "extraneous key [...] is not permitted" ValidationException.
-"""
 
 import boto3
 from typing import Final, List, Dict, Any
@@ -18,6 +8,7 @@ from pprint import pprint
 load_dotenv()
 
 DEFAULT_MODEL: Final = "amazon.nova-pro-v1:0"
+# DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 BEDROCK_PROFILE: Final = "145023121181_Administrator"
 REGION: Final = "us-east-1"
 
@@ -96,6 +87,8 @@ def call_bedrock(
         payload["toolConfig"] = {"tools": convert_tools_format_to_bedrock(tools)}
 
     return client.converse(**payload)
+
+
 
 
 # --------------------------------------------------------------------------- #
