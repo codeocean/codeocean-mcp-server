@@ -77,5 +77,4 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
         """
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        result = client.capsules.search_capsules(params)
-        return CapsuleSearchResultsModel.model_validate(result)
+        return client.capsules.search_capsules(params)
