@@ -17,9 +17,7 @@ session = boto3.Session(profile_name=BEDROCK_PROFILE)
 client = session.client("bedrock-runtime", region_name=REGION)
 
 
-# --------------------------------------------------------------------------- #
 # Helper: strip unsupported JSON-Schema keys                                  #
-# --------------------------------------------------------------------------- #
 _ALLOWED_SCHEMA_KEYS = {"type", "properties", "required", "description", "title"}
 
 
@@ -31,9 +29,7 @@ def _sanitize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     return {k: v for k, v in schema.items() if k in _ALLOWED_SCHEMA_KEYS}
 
 
-# --------------------------------------------------------------------------- #
 # Public converter                                                            #
-# --------------------------------------------------------------------------- #
 def convert_tools_format_to_bedrock(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """Convert MCP-style tool descriptors to the structure required by Bedrock.
 
