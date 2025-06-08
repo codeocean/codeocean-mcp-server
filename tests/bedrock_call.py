@@ -1,9 +1,10 @@
 # bedrock_call.py
 
-import boto3
-from typing import Final, List, Dict, Any
-from dotenv import load_dotenv
 from pprint import pprint
+from typing import Any, Dict, Final, List
+
+import boto3
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -23,10 +24,9 @@ _ALLOWED_SCHEMA_KEYS = {"type", "properties", "required", "description", "title"
 
 
 def _sanitize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Return a shallow copy of *schema* containing only keys permitted by
-    Bedrock's ToolInputSchema (see docs).  Any nested objects inside
-    'properties' are left untouched; only top-level keys are filtered.
+    """Return a shallow copy of *schema* containing only keys permitted by Bedrock's ToolInputSchema (see docs).\
+
+    Any nested objects inside 'properties' are left untouched; only top-level keys are filtered.
     """
     return {k: v for k, v in schema.items() if k in _ALLOWED_SCHEMA_KEYS}
 
@@ -75,11 +75,13 @@ def call_bedrock(
     prompt: str,
     tools: List[Dict[str, Any]] | None = None,
     model: str = DEFAULT_MODEL,
+    temperature: float = 0.0,
 ) -> Dict[str, Any]:
     """Send *prompt* (and optional tools) to Amazon Bedrock via the Converse API."""
     payload: Dict[str, Any] = {
         "modelId": model,
         "messages": [{"role": "user", "content": [{"text": prompt}]}],
+        "inferenceConfig": {"temperature": temperature},
     }
 
     if tools:
@@ -90,10 +92,7 @@ def call_bedrock(
 
 
 
-# --------------------------------------------------------------------------- #
 # Quick manual test                                                           #
-# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
-    # Example prompt without tools
     reply = call_bedrock("How can I find the first 10 capsules?")
     pprint(reply["output"]["message"]["content"])
