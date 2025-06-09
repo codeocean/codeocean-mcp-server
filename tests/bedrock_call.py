@@ -1,72 +1,22 @@
 # bedrock_call.py
-
-from pprint import pprint
-from typing import Any, Dict, Final, List
+import os
+from typing import Any, Dict, List
 
 import boto3
+from bedrock_tools_converter import convert_tool_format
 from dotenv import load_dotenv
 
 load_dotenv()
 
-DEFAULT_MODEL: Final = "amazon.nova-pro-v1:0"
+DEFAULT_MODEL = "amazon.nova-pro-v1:0"
 # DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-BEDROCK_PROFILE: Final = "145023121181_Administrator"
-REGION: Final = "us-east-1"
+BEDROCK_PROFILE = os.getenv("BEDROCK_PROFILE")
+REGION = os.getenv("REGION")
 
 session = boto3.Session(profile_name=BEDROCK_PROFILE)
 client = session.client("bedrock-runtime", region_name=REGION)
 
 
-# Helper: strip unsupported JSON-Schema keys                                  #
-_ALLOWED_SCHEMA_KEYS = {"type", "properties", "required", "description", "title"}
-
-
-def _sanitize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """Return a shallow copy of *schema* containing only keys permitted by Bedrock's ToolInputSchema (see docs).\
-
-    Any nested objects inside 'properties' are left untouched; only top-level keys are filtered.
-    """
-    return {k: v for k, v in schema.items() if k in _ALLOWED_SCHEMA_KEYS}
-
-
-# Public converter                                                            #
-def convert_tools_format_to_bedrock(tools: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Convert MCP-style tool descriptors to the structure required by Bedrock.
-
-    Expected input for each tool:
-        {"name": str, "description": str, "parameters": dict}
-
-    Returned list:
-        [{
-            "toolSpec": {
-                "name": ...,
-                "description": ...,
-                "inputSchema": {"json": {...sanitised schema...}}
-            }
-        }, ...]
-    """
-    converted: List[Dict[str, Any]] = []
-    for tool in tools:
-        if not {"name", "description", "parameters"} <= tool.keys():
-            raise ValueError("Each tool must have 'name', 'description', 'parameters'.")
-
-        cleaned_schema = _sanitize_schema(tool["parameters"])
-
-        converted.append(
-            {
-                "toolSpec": {
-                    "name": tool["name"],
-                    "description": tool["description"],
-                    "inputSchema": {"json": cleaned_schema},
-                }
-            }
-        )
-    return converted
-
-
-# --------------------------------------------------------------------------- #
-# Bedrock call                                                                #
-# --------------------------------------------------------------------------- #
 def call_bedrock(
     prompt: str,
     tools: List[Dict[str, Any]] | None = None,
@@ -81,14 +31,17 @@ def call_bedrock(
     }
 
     if tools:
-        payload["toolConfig"] = {"tools": convert_tools_format_to_bedrock(tools)}
+        payload["toolConfig"] = convert_tool_format(tools, model)
 
     return client.converse(**payload)
 
 
-
-
-# Quick manual test                                                           #
 if __name__ == "__main__":
-    reply = call_bedrock("How can I find the first 10 capsules?")
+    from mcp_client import get_tools
+    from rich import print as pprint
+
+    tools = get_tools()
+    reply = call_bedrock(
+        "How can I find the first 10 code ocean capsules?", tools=tools
+    )
     pprint(reply["output"]["message"]["content"])
