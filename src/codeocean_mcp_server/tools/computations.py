@@ -11,6 +11,52 @@ FolderModel = dataclass_to_pydantic(Folder)
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
+
+    @mcp.tool()
+    def run_capsule(run_params: RunParamssModel) -> FolderModel:
+        """Execute a capsule in Code Ocean and don't wait.
+
+        This tool runs a capsule in Code Ocean's cloud infrastructure, which is an
+        isolated environment containing code and its dependencies. The capsule runs
+        asynchronously.
+        The tool return the computation object that contains the status and ID of the run.
+        This tool does not wait until the capsule completes; it simply starts the run
+        Parameters (of `run_params`):
+        ----------
+        capsule_id : str | None - unique identifier of the capsule to execute;
+                values: alphanumeric capsule ID from Code Ocean
+
+        pipeline_id : str | None - unique identifier of a pipeline to execute instead of a capsule;
+                values: alphanumeric pipeline ID from Code Ocean
+
+        version : int | None - specific version of the capsule/pipeline to run;
+                values: positive integer, defaults to latest published version
+
+        resume_run_id : str | None - computation ID to resume from a previous run;
+                values: alphanumeric computation ID from a prior execution
+
+        data_assets : list[DataAssetsRunParam] | None - input datasets to mount for the computation;
+                values: list of DataAssetsRunParam objects:
+                    - id: str - data asset ID to mount
+                    - mount: str - path where the data asset will be accessible
+
+        parameters : list[str] | None - positional command-line arguments to pass to the capsule;
+                values: list of string arguments
+
+        named_parameters : list[NamedRunParam] | None - named command-line parameters;
+                values: list of NamedRunParam:
+                    - param_name: str - parameter name
+                    - value: str - parameter value
+
+        processes : list[PipelineProcessParams] | None - configuration for pipeline processes;
+                values: list of PipelineProcessParams objects:
+                    - name: str - process name
+                    - parameters: list[str] | None - positional parameters for this process
+                    - named_parameters: list[NamedRunParam] | None - named parameters for this process
+        """
+        return client.computations.run_capsule(run_params)
+
+
     @mcp.tool()
     def run_capsule_and_return_result(run_params: RunParamssModel) -> FolderModel:
         """Execute a reproducible computation in Code Ocean and retrieve the result files.
@@ -49,7 +95,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
                 values: list of string arguments
 
         named_parameters : list[NamedRunParam] | None - named command-line parameters;
-                values: list of NamedRunParam objects:
+                values: list of NamedRunParam:
                     - param_name: str - parameter name
                     - value: str - parameter value
 
@@ -80,6 +126,13 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         - Large result sets can be retrieved incrementally using the folder browsing APIs.
 
         """
-        computation = client.computations.run_capsule(run_params)
-        client.computations.wait_until_completed(computation)
-        return client.computations.list_computation_results(computation.id)
+        try:
+            computation = client.computations.run_capsule(run_params)
+            client.computations.wait_until_completed(computation)
+            result = client.computations.list_computation_results(computation.id)
+            return [file.to_dict() for file in result.items]
+        except Exception as e:
+            return f"Error running capsule: {str(e)}\n for parameters {run_params}"
+
+
+
