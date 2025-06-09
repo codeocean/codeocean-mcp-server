@@ -44,8 +44,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         ownership : Ownership | None - scope-of-visibility filter;
                 values: mine | shared | created | all
 
-        origin : DataAssetSearchOrigin | None - filter by origin of the data asset;
-                values: internal | external
+        origin : values: internal | external | None - filter by origin of the data asset (external or internal data assets.
 
         favorite : bool | None - restrict results by "starred" flag;
                 values: true | false
@@ -81,4 +80,5 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
         return client.data_assets.search_data_assets(params)
+
 
