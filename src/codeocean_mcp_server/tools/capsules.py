@@ -57,6 +57,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
                 - values: list[str | float] | None - multiple values to match
                 - range: SearchFilterRange | None - inclusive range to match
                 - exclude: bool | None - if true, excludes results matching this filter
+        When asked to filter data, make sure yo ureturn the `filters` field with correct keys and values.
 
         Returns
         -------
