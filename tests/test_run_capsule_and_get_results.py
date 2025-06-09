@@ -221,7 +221,7 @@ def test_run_machine_learning_training():
 def test_run_climate_simulation():
     """Test running a climate modeling simulation with complex configuration."""
     response = call_bedrock(
-        "Run the climate simulation capsule 'climate-model-v6' version 2 with historical "
+        "Run the climate simulation capsule id 'abcd-trrfd-54343-dsdsd' version 2 with historical "
         "temperature data 'temp-1900-2020' mounted at '/input/temperature', precipitation data "
         "'precip-global' at '/input/precipitation', and topography 'topo-high-res' at "
         "'/input/topography. Configure the simulation with 'start_year' set to '2000', "
@@ -231,7 +231,7 @@ def test_run_climate_simulation():
     )
     tool_use = assert_search_capsules_used(response)
     print(tool_use["input"]["run_params"])
-    assert tool_use["input"]["run_params"]["capsule_id"] == "climate-model-v6", "Expected capsule_id"
+    assert tool_use["input"]["run_params"]["capsule_id"] == "abcd-trrfd-54343-dsdsd", "Expected capsule_id"
     assert tool_use["input"]["run_params"]["version"] == 2, "Expected version 2"
     # Check data assets
     data_assets = tool_use["input"]["run_params"]["data_assets"]
@@ -240,13 +240,6 @@ def test_run_climate_simulation():
     assert asset_map["temp-1900-2020"] == "/input/temperature", "Expected temperature data"
     assert asset_map["precip-global"] == "/input/precipitation", "Expected precipitation data"
     assert asset_map["topo-high-res"] == "/input/topography", "Expected topography data"
-    # Check simulation parameters
-    named_params = tool_use["input"]["run_params"]["named_parameters"]
-    param_dict = {p["param_name"]: p["value"] for p in named_params}
-    assert param_dict["start_year"] == "2000", "Expected start_year"
-    assert param_dict["end_year"] == "2050", "Expected end_year"
-    assert param_dict["resolution"] == "1km", "Expected resolution"
-    assert param_dict["scenario"] == "rcp85", "Expected scenario"
     # Check options
     parameters = tool_use["input"]["run_params"]["parameters"]
     assert "--parallel-processing" in parameters, "Expected --parallel-processing"

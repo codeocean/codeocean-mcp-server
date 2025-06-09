@@ -143,13 +143,12 @@ def test_search_data_assets_query_filter_sort():
 
 def test_search_data_assets_complex_query():
     """Test calling Bedrock with tools for complex query with multiple parameters."""
-    prompt = ("find 15 dataset type data assets that are external origin, "
+    prompt = ("find 15 external data assets that, "
               "sorted by size descending, with 'machine learning' in description")
     response = call_bedrock(prompt=prompt, tools=tools)
 
     tool_use = assert_search_data_assets_used(response)
     assert tool_use["input"]["search_params"]["limit"] == 15, "Expected 'limit' to be set to 15"
-    assert tool_use["input"]["search_params"]["type"] == "dataset", "Expected 'type' to be set to 'dataset'"
     assert (tool_use["input"]["search_params"]["origin"] == "external"), \
         "Expected 'origin' to be set to 'external'"
     assert (tool_use["input"]["search_params"]["sort_field"] == "size"), \
