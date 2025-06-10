@@ -1,0 +1,61 @@
+import pytest
+from bedrock_call import call_bedrock
+from deepdiff import DeepDiff
+from mcp_client import get_tools
+from rich import print
+
+tools = get_tools()
+
+
+agentic_prompt_chain = {
+    "id": "run_capsule_and_wait",
+    "prompt": "Run the capsule with ID 5647362 and wait until it is ready, and then return the results",
+    "chain": (
+        (
+            {"name": "run_capsule", "input": {"run_params": {"capsule_id": "5647362"}}},
+            {"computation_id": "654338"},
+        ),
+        (
+            {"name": "wait_until_completed", "input": {"computation_id": "654338"}},
+            {"status": "COMPLETED", "computation_id": "654338"},
+        ),
+        (
+            {"name": "list_computation_results", "input": {"computation_id": "654338"}},
+            {"results": {"output": "This is the output of the capsule"}},
+        ),
+    ),
+}
+
+
+def check_diff(expected_response, response):
+    """Check that the response matches the expected response."""
+    toolUsage = response["output"]["message"]["content"][-1]["toolUse"]
+    diff = DeepDiff(expected_response, toolUsage, ignore_order=True)
+    for extra in ("dictionary_item_added", "iterable_item_added"):
+        diff.pop(extra, None)
+    assert not diff, f"toolUsage diverges from expected:\n\n-----\n{diff!r}\n------"
+
+
+def test_prompt_generating_the_chain_of_right_tool_usage(
+    agentic_prompt_chain=agentic_prompt_chain,
+):
+    """Test that the prompt generates the expected tool usage."""
+    responses = []
+    prompt = ""
+    for idx, step in enumerate(agentic_prompt_chain["chain"]):
+        print("running step:", idx)
+        if not prompt:
+            prompt = agentic_prompt_chain["prompt"]
+        else:
+            prompt += str(responses) + "\nwhat is the next steps?\n"
+        response = call_bedrock(prompt=prompt, tools=tools)
+        check_diff(step[0], response)
+        responses.append(
+            {
+                "prompt": prompt,
+                "call": response["output"]["message"]["content"][-1]["toolUse"],
+                "response": step[1],
+            }
+        )
+    print([r["call"] for r in responses])
+
