@@ -1,18 +1,40 @@
+from typing import Type
+
 from codeocean import CodeOcean
-from codeocean.capsule import CapsuleSearchParams, CapsuleSearchResults
+from codeocean.capsule import (
+    Capsule,
+    CapsuleSearchParams,
+    CapsuleSearchResults,
+    Computation,
+    DataAssetAttachParams,
+    DataAssetAttachResults,
+)
 from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
-CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
-CapsuleSearchResultsModel = dataclass_to_pydantic(CapsuleSearchResults)
+CapsuleSearchParamsModel: Type[BaseModel] = dataclass_to_pydantic(CapsuleSearchParams)
+CapsuleSearchResultsModel: Type[BaseModel] = dataclass_to_pydantic(CapsuleSearchResults)
+
+DataAssetAttachParamsModel: Type[BaseModel] = dataclass_to_pydantic(
+    DataAssetAttachParams
+)
+DataAssetAttachResultsModel: Type[BaseModel] = dataclass_to_pydantic(
+    DataAssetAttachResults
+)
+
+CapsuleModel = dataclass_to_pydantic(Capsule)
+ComputationModel = dataclass_to_pydantic(Computation)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
     @mcp.tool()
-    def search_capsules(search_params: CapsuleSearchParamsModel) -> CapsuleSearchResultsModel:
+    def search_capsules(
+        search_params: CapsuleSearchParamsModel,
+    ) -> CapsuleSearchResultsModel:
         """Retrieve capsules that match a rich set of search criteria, when asked for capsules or tools.
 
         Capsules are a compute environment abstraction in CodeOcean, not to be confused with data asssets or pipelines.
@@ -51,7 +73,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
                 values: true | false
 
         filters : list[SearchFilter] | None - additional field-level predicates combined with **AND**;
-            values: list of SearchFilter: 
+            values: list of SearchFilter:
                 - key: str - field name to filter on
                 - value: str | float | None - single value to match
                 - values: list[str | float] | None - multiple values to match
@@ -79,3 +101,55 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         return client.capsules.search_capsules(params)
+
+
+    @mcp.tool()
+    def attach_data_assets(
+        capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
+    ) -> list[DataAssetAttachResultsModel]:
+        """Attach data assets to a capsule.
+
+        Parameters
+        ----------
+        capsule_id : str
+            The ID of the capsule to which the data assets will be attached.
+        data_asset_ids : list[str]
+            A list of data asset IDs to attach to the capsule.
+
+        Returns
+        -------
+        None
+            This function does not return any value.
+        """
+        return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
+
+
+    @mcp.tool()
+    def get_capsule(capsule_id: str) -> CapsuleModel:
+        """Retrieve a capsule by its ID.
+
+        Parameters
+        ----------
+        capsule_id : str
+            The ID of the capsule to retrieve.
+
+        Returns
+        -------
+        CapsuleSearchResultsModel
+            The capsule details.
+        """
+        return client.capsules.get_capsule(capsule_id)
+
+
+    @mcp.tool()
+    def list_computations(capsule_id: str) -> list[ComputationModel]:
+        """List all computations.
+
+        Returns
+        -------
+        list[Computation]
+            A list of all computations.
+        """
+        return client.capsules.list_computations()
+
+
