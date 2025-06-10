@@ -1,19 +1,19 @@
 from codeocean import CodeOcean
-from codeocean.computation import Folder, RunParams, Computations
+from codeocean.computation import Folder, RunParams, Computation
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
 RunParamssModel = dataclass_to_pydantic(RunParams)
 FolderModel = dataclass_to_pydantic(Folder)
-ComputationsModel = dataclass_to_pydantic(Computations)
+ComputationModel = dataclass_to_pydantic(Computation)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
     @mcp.tool()
-    def get_computation(computation_id: str) -> ComputationsModel:
+    def get_computation(computation_id: str) -> list[ComputationModel]:
         """Retrieve a specific computation by its unique identifier.
 
         Parameters:
@@ -71,7 +71,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
 
     @mcp.tool()
-    def wait_until_completed(computation_id: str) -> ComputationsModel:
+    def wait_until_completed(computation_id: str) -> ComputationModel:
         """Wait until a computation completes and return its details.
 
         This tool blocks until the specified computation reaches a terminal state
