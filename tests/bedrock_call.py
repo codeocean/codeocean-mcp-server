@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DEFAULT_MODEL = "amazon.nova-pro-v1:0"
-# DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+# DEFAULT_MODEL = "amazon.nova-pro-v1:0"
+DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 BEDROCK_PROFILE = os.getenv("BEDROCK_PROFILE")
 REGION = os.getenv("REGION")
 
@@ -22,6 +22,7 @@ def call_bedrock(
     tools: List[Dict[str, Any]] | None = None,
     model: str = DEFAULT_MODEL,
     temperature: float = 0.0,
+    max_retries: int = 3,
 ) -> Dict[str, Any]:
     """Send *prompt* (and optional tools) to Amazon Bedrock via the Converse API."""
     payload: Dict[str, Any] = {
@@ -33,7 +34,16 @@ def call_bedrock(
     if tools:
         payload["toolConfig"] = convert_tool_format(tools, model)
 
-    return client.converse(**payload)
+    # Retry logic for model errors
+    for attempt in range(max_retries):
+        try:
+            return client.converse(**payload)
+        except Exception as e:
+            if "ModelErrorException" in str(e) and attempt < max_retries - 1:
+                print(f"Attempt {attempt + 1} failed with ModelErrorException, retrying...")
+                continue
+            else:
+                raise
 
 
 if __name__ == "__main__":
