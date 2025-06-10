@@ -305,7 +305,35 @@ test_response = [
                 }
             }
         }
-    }
+    },
+    # --------------------------------------------------------------
+    # test attach_data_assets
+    {
+        "id": "attach_data_assets",
+        "prompt": "attach data assets with ids: 123, 456 to capsule with id: abc",
+        "expected": {
+            "name": "attach_data_assets",
+            "input": {
+                "capsule_id": "abc",
+                "data_asset_ids": [
+                    {"id": "123"},
+                    {"id": "456"}
+                ]
+            }
+        }
+    },
+    # --------------------------------------------------------------
+    # test get_capsule
+    {
+        "id": "get_capsule",
+        "prompt": "get capsule with id: abc123 and return its details",
+        "expected": {
+            "name": "get_capsule",
+            "input": {
+                "capsule_id": "abc123"
+            }
+        }
+    },
 ]
 
 
