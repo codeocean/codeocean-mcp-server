@@ -26,7 +26,7 @@ agentic_prompt_chain = {
 }
 
 
-def check_diff(expected_response, response):
+def check_diff(expected_response: dict, response: dict) -> None:
     """Check that the response matches the expected response."""
     toolUsage = response["output"]["message"]["content"][-1]["toolUse"]
     diff = DeepDiff(expected_response, toolUsage, ignore_order=True)
@@ -36,7 +36,7 @@ def check_diff(expected_response, response):
 
 
 def test_prompt_generates_correct_tool_usage_sequence(
-    agentic_prompt_chain=agentic_prompt_chain,
+    agentic_prompt_chain:dict = agentic_prompt_chain,
 ):
     """Test that the prompt generates the expected sequence of tool calls in the correct order."""
     responses = []
