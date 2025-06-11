@@ -1,4 +1,3 @@
-import pytest
 from bedrock_call import call_bedrock
 from deepdiff import DeepDiff
 from mcp_client import get_tools
@@ -36,10 +35,10 @@ def check_diff(expected_response, response):
     assert not diff, f"toolUsage diverges from expected:\n\n-----\n{diff!r}\n------"
 
 
-def test_prompt_generating_the_chain_of_right_tool_usage(
+def test_prompt_generates_correct_tool_usage_sequence(
     agentic_prompt_chain=agentic_prompt_chain,
 ):
-    """Test that the prompt generates the expected tool usage."""
+    """Test that the prompt generates the expected sequence of tool calls in the correct order."""
     responses = []
     prompt = ""
     for idx, step in enumerate(agentic_prompt_chain["chain"]):
