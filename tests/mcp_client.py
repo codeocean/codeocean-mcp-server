@@ -33,5 +33,6 @@ def get_tools(sever=SERVER) -> list[dict]:
 
 
 if __name__ == "__main__":
-    from rich import print as rprint
-    rprint(get_tools())
+    from rich import print
+    tool = [t for t in get_tools() if t.name=='run_capsule'][0]
+    print(tool)
