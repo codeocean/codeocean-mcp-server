@@ -35,13 +35,3 @@ def call_bedrock(
 
     return client.converse(**payload)
 
-
-if __name__ == "__main__":
-    from mcp_client import get_tools
-    from rich import print as pprint
-
-    tools = get_tools()
-    reply = call_bedrock(
-        "How can I find the first 10 code ocean capsules?", tools=tools
-    )
-    pprint(reply["output"]["message"]["content"])
