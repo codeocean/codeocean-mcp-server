@@ -1,12 +1,11 @@
 from dataclasses import fields, is_dataclass
 from typing import Any, List, Type, get_args, get_origin, get_type_hints
 
-from pydantic import BaseModel, create_model
+from pydantic import BaseModel, Field, create_model
 
 
 def dataclass_to_pydantic(
-    data_class: Type[Any],
-    cache: dict[Type[Any], Type[BaseModel]] = None
+    data_class: Type[Any], cache: dict[Type[Any], Type[BaseModel]] = None
 ) -> Type[BaseModel]:
     """Convert a dataclass to Pydantic model.
 
@@ -43,14 +42,37 @@ def dataclass_to_pydantic(
             nested_model = dataclass_to_pydantic(args[0], cache)
             field_type = List[nested_model]
 
+        # 4) Handle field with description from metadata
+        field_info = default
+        if filed.metadata and "description" in filed.metadata:
+            # Create a Pydantic Field with description
+            field_info = Field(default=default, description=filed.metadata["description"])
 
-        definitions[filed.name] = (field_type, default)
+        definitions[filed.name] = (field_type, field_info)
 
     # 5) Dynamically create the Pydantic model
-    model = create_model( f"{data_class.__name__}Model", __base__=BaseModel, **definitions)
+    model = create_model(
+        f"{data_class.__name__}Model",
+        __base__=BaseModel,
+        __doc__=data_class.__doc__,
+        **definitions
+    )
+
+    # 6) Override the schema generation to include description from docstring
+    if data_class.__doc__:
+        original_json_schema = model.model_json_schema
+
+        def custom_json_schema(*args, **kwargs):
+            schema = original_json_schema(*args, **kwargs)
+            schema["description"] = data_class.__doc__.strip()
+            return schema
+
+        model.model_json_schema = custom_json_schema
 
     # 6) Rebuild to resolve any remaining forward refs
     model.model_rebuild()
 
     cache[data_class] = model
     return model
+
+
