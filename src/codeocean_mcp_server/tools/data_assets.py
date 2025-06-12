@@ -47,7 +47,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.data_assets.search_data_assets(params)
 
 
-    @mcp.tool(description=client.data_assets.get_data_asset.__doc__ + ADDITIONAL_INSTRUCTIONS["get_data_asset_file_download_url"])  # noqa: E501
+    @mcp.tool(description=client.data_assets.get_data_asset_file_download_url.__doc__ + ADDITIONAL_INSTRUCTIONS["get_data_asset_file_download_url"])  # noqa: E501
     def get_data_asset_file_download_url(
         data_asset_id: str,
         file_path: str | None = None,
