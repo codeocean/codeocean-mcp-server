@@ -24,10 +24,10 @@ def dataclass_to_pydantic(
     type_hints = get_type_hints(data_class, globalns=module_ns, localns=module_ns)
 
     definitions: dict[str, tuple[type, Any]] = {}
-    for filed in fields(data_class):
+    for field in fields(data_class):
         # Use the evaluated hint if available, else the raw annotation
-        typ = type_hints.get(filed.name, filed.type)
-        default = filed.default
+        typ = type_hints.get(field.name, field.type)
+        default = field.default
         field_type = typ
         origin = get_origin(typ)
         args = get_args(typ)
@@ -44,11 +44,11 @@ def dataclass_to_pydantic(
 
         # 4) Handle field with description from metadata
         field_info = default
-        if filed.metadata and "description" in filed.metadata:
+        if field.metadata and "description" in field.metadata:
             # Create a Pydantic Field with description
-            field_info = Field(default=default, description=filed.metadata["description"])
+            field_info = Field(default=default, description=field.metadata["description"])
 
-        definitions[filed.name] = (field_type, field_info)
+        definitions[field.name] = (field_type, field_info)
 
     # 5) Dynamically create the Pydantic model
     model = create_model(
