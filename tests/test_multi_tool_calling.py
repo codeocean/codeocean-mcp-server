@@ -8,18 +8,18 @@ tools = get_tools()
 
 agentic_prompt_chain = {
     "id": "run_capsule_and_wait",
-    "prompt": "Run the capsule with ID 5647362 and wait until it is ready, and then return the results",
+    "prompt": "Run the capsule with ID 56473-6243-88736 and wait until it is ready, and then return the results",
     "chain": (
         (
-            {"name": "run_capsule", "input": {"run_params": {"capsule_id": "5647362"}}},
-            {"computation_id": "654338"},
+            {"name": "run_capsule", "input": {"run_params": {"capsule_id": "56473-6243-88736"}}},
+            {"computation_id": "654338-545-2232"},
         ),
         (
-            {"name": "wait_until_completed", "input": {"computation_id": "654338"}},
-            {"status": "COMPLETED", "computation_id": "654338"},
+            {"name": "wait_until_completed", "input": {"computation_id": "654338-545-2232"}},
+            {"status": "COMPLETED", "computation_id": "654338-545-2232"},
         ),
         (
-            {"name": "list_computation_results", "input": {"computation_id": "654338"}},
+            {"name": "list_computation_results", "input": {"computation_id": "654338-545-2232"}},
             {"results": {"output": "This is the output of the capsule"}},
         ),
     ),
@@ -56,5 +56,3 @@ def test_prompt_generates_correct_tool_usage_sequence(
                 "response": step[1],
             }
         )
-    print([r["call"] for r in responses])
-
