@@ -31,10 +31,3 @@ def get_tools(sever=SERVER) -> list[dict]:
     loop = asyncio.new_event_loop()
     return loop.run_until_complete(async_server())
 
-
-if __name__ == "__main__":
-    from bedrock_tools_converter import convert_tool_format
-    from rich import print
-
-    tools = convert_tool_format(get_tools(), "anthropic.claude-3-5-sonnet-20240620-v1:0")
-    print(tools)
