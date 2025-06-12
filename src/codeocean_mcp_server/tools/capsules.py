@@ -20,16 +20,30 @@ CapsuleModel = dataclass_to_pydantic(Capsule)
 ComputationModel = dataclass_to_pydantic(Computation)
 
 ADDITIONAL_INSTRUCTIONS = {
-    "search_capsules": """Always use when asked for search capsule - make sure to follow the exact parameters schema:
-    Only use the minimal required parameters that are needed to fulfill the query. For example if required to limit the number of returned values
-    to 10, use the `limit` parameter with a value of 10, but not other parameters like `sort_by` or `sort_order` unless specifically requested.""",  # noqa: E501
+    "search_capsules": (
+        "Use only for capsule searches. "
+        "Provide only the minimal required parameters (e.g. limit=10); "
+        "do not include optional params"
+        "like sort_by or sort_order unless requested."
+    ),
+    "get_capsule": (
+        "Use only to fetch metadata for a known capsule ID. "
+        "Do not use for searching."
+    ),
+    "attach_data_assets": (
+        "Accepts a list of parameter objects (e.g. [{'id': '...'}]), "
+        "not just a list of IDs."
+    ),
 }
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
-    @mcp.tool(description=client.capsules.search_capsules.__doc__ + ADDITIONAL_INSTRUCTIONS["search_capsules"])
+    @mcp.tool(
+        description=client.capsules.search_capsules.__doc__
+        + ADDITIONAL_INSTRUCTIONS["search_capsules"]
+    )
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
     ) -> CapsuleSearchResultsModel:
@@ -37,14 +51,20 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         return client.capsules.search_capsules(params)
 
-    @mcp.tool(description=client.capsules.attach_data_assets.__doc__)
+    @mcp.tool(
+        description=client.capsules.attach_data_assets.__doc__
+        + ADDITIONAL_INSTRUCTIONS["attach_data_assets"]
+    )
     def attach_data_assets(
         capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
     ) -> list[DataAssetAttachResultsModel]:
         """Attach data assets to a capsule."""
         return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
 
-    @mcp.tool(description=client.capsules.get_capsule.__doc__ + " Only used when asked for capsule metadata, and you have a spcific capsule ID, Do not use to search for capsules.")  # noqa: E501
+    @mcp.tool(
+        description=client.capsules.get_capsule.__doc__
+        + ADDITIONAL_INSTRUCTIONS["get_capsule"]
+    )
     def get_capsule(capsule_id: str) -> CapsuleModel:
         """Retrieve a capsule by its ID."""
         return client.capsules.get_capsule(capsule_id)
