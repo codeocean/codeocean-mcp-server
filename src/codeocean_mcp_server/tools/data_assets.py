@@ -23,16 +23,19 @@ DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
 ADDITIONAL_INSTRUCTIONS = {
-    "get_data_asset_file_download_url" : """
-Don't call when a wait is required! - only used if you know that the data assets is already created.
-Otherwise, use the `wait_until_ready` tool to ensure the data asset is ready before attempting to download files.
-""",
-"wait_until_ready": """
-Use this tool when asked to wait for a data assets to be ready.
-""",
-"search_data_assets": """"
- Notes:search for external and internal data assets (filterd by the 'origin' field).
-"""
+    "get_data_asset_file_download_url": (
+        "Call only when the data asset is already created and in a ready state. "
+        "If the asset may not yet be ready, first use `wait_until_ready` to poll until readiness, "
+        "then retrieve the download URL."
+    ),
+    "wait_until_ready": (
+        "Poll until the specified data asset becomes ready before performing further operations "
+        "(e.g., downloading files). You can set `polling_interval` and optional `timeout`."
+    ),
+    "search_data_assets": (
+        "Search for data assets (external or internal). "
+        "You may filter by fields such as `origin`, tags, or other criteria supported by the SDK."
+    ),
 }
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
