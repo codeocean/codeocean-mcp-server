@@ -1,6 +1,8 @@
 from codeocean import CodeOcean
 from codeocean.data_asset import (
     DataAsset,
+    DataAssetAttachParams,
+    DataAssetParams,
     DataAssetSearchParams,
     DataAssetSearchResults,
     DataAssetUpdateParams,
@@ -16,181 +18,77 @@ DataAssetSearchResultsModel = dataclass_to_pydantic(DataAssetSearchResults)
 FolderModel = dataclass_to_pydantic(Folder)
 DataAssetUpdateParamsModel = (dataclass_to_pydantic(DataAssetUpdateParams),)
 DataAssetModel = dataclass_to_pydantic(DataAsset)
+DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
+DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
+
+ADDITIONAL_INSTRUCTIONS = {
+    "get_data_asset_file_download_url" : """
+Don't call when a wait is required! - only used if you know that the data assets is already created.
+Otherwise, use the `wait_until_ready` tool to ensure the data asset is ready before attempting to download files.
+""",
+"wait_until_ready": """
+Use this tool when asked to wait for a data assets to be ready.
+""",
+"search_data_assets": """"
+ Notes:search for external and internal data assets (filterd by the 'origin' field).
+"""
+}
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
-    @mcp.tool()
+    @mcp.tool(description=client.data_assets.search_data_assets.__doc__ + ADDITIONAL_INSTRUCTIONS["search_data_assets"])
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
     ) -> DataAssetSearchResults:
-        """Retrieve data assets that match a rich set of search criteria, when asked for data assets or datasets.
-
-        Data assets are stored data abstractions in CodeOcean (datasets, results, models, combined assets),
-        not to be confused with capsules or pipelines.
-
-        Parameters(of `search_params`):
-        ----------
-        query : str | None - free-text phrase to match data asset **name**, **description**, or **tags**;
-            values: any UTF-8 string
-
-        next_token : str | None - opaque cursor from a previous call for cursor-based pagination;
-                values: string returned by the API
-
-        offset : int | None - zero-based index of the first record *when not using* `next_token`;
-                values: non-negative integer
-
-        limit : int | None - maximum number of data assets to return in this call;
-                values: positive integer (1 - 1000)
-
-        sort_field : DataAssetSortBy | None - data asset attribute used for ordering;
-                values: created | type | name | size
-
-        sort_order : SortOrder | None - must be supplied *only* when `sort_field` is set;
-                values: asc | desc (ascending or descending)
-
-        type : DataAssetType | None - filter by data asset type;
-                values: dataset | result | combined | model
-
-        ownership : Ownership | None - scope-of-visibility filter;
-                values: mine | shared | created | all
-
-        origin : values: internal | external | None - filter by origin of the data asset (external or internal data assets.
-
-        favorite : bool | None - restrict results by "starred" flag;
-                values: true | false
-
-        archived : bool | None - include or exclude archived data assets;
-                values: true | false
-
-        filters : list[SearchFilter] | None - additional field-level predicates combined with **AND**;
-            values: list of SearchFilter:
-                - key: str - field name to filter on
-                - value: str | float | None - single value to match
-                - values: list[str | float] | None - multiple values to match
-                - range: SearchFilterRange | None - inclusive range to match
-                - exclude: bool | None - if true, excludes results matching this filter
-
-        Returns
-        -------
-        DataAssetSearchResultsModel
-            A result bundle containing the current page (`results`), a `has_more`
-            flag, and a `next_token` for continued iteration.
-
-
-        Notes
-        -----
-        - For large result sets prefer the **cursor pattern** (`next_token`) over
-            `offset` + `limit`—it is more performant and resilient to concurrent
-            data changes.
-        - `offset` and `next_token` are *mutually exclusive*; supplying both
-            triggers a validation error.
-        - The helper `search_data_assets_iterator()` abstracts cursor traversal when
-            you need to stream all matches.
-
-        """
+        """Retrieve data assets that match a rich set of search criteria, when asked for data assets or datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
         return client.data_assets.search_data_assets(params)
 
-    @mcp.tool()
+
+    @mcp.tool(description=client.data_assets.get_data_asset.__doc__ + ADDITIONAL_INSTRUCTIONS["get_data_asset_file_download_url"])  # noqa: E501
     def get_data_asset_file_download_url(
         data_asset_id: str,
         file_path: str | None = None,
     ) -> DownloadFileURL:
-        """Get a download URL for a specific file in a data asset.
-
-        Parameters
-        ----------
-        data_asset_id : str - unique identifier of the data asset;
-            values: alphanumeric data asset ID from Code Ocean
-
-        file_path : str | None - path to the specific file within the data asset;
-            values: relative path within the data asset, or None for the root
-
-        Returns
-        -------
-        {"url" : str}
-
-        """
+        """Get a download URL for a specific file in a data asset."""
         return client.data_assets.get_data_asset_file_download_url(
             data_asset_id, file_path
         )
 
-    @mcp.tool()
+
+    @mcp.tool(description = client.data_assets.list_data_asset_files.__doc__)
     def list_data_asset_files(data_asset_id: str) -> FolderModel:
-        """List files in a data asset.
-
-        This tool retrieves the directory structure of files within a specific data asset.
-        It can be used to explore the contents of datasets, results, or other data assets.
-
-        Parameters
-        ----------
-        data_asset_id : str - unique identifier of the data asset;
-            values: alphanumeric data asset ID from Code Ocean
-
-        Returns
-        -------
-        FolderModel
-            A structured representation of the files and folders within the data asset.
-
-        """
+        """List files in a data asset."""
         return client.data_assets.list_data_asset_files(data_asset_id)
 
-    @mcp.tool()
+
+    @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
         data_asset_id: str, update_params: DataAssetUpdateParamsModel
     ) -> DataAssetModel:
-        """Update metadata for a specific data asset.
-
-        Parameters
-        ----------
-        data_asset_id : str - unique identifier of the data asset;
-            values: alphanumeric data asset ID from Code Ocean
-
-        update_params : DataAssetUpdateParamsModel - parameters for updating the data asset metadata;
-            values:
-                - name: str | None - new name for the data asset
-                - description: str | None - new description for the data asset
-                - tags: list[str] | None - new tags to associate with the data asset
-                - metadata: dict[str, Any] | None - additional metadata to update
-                - custom_metadata: Optional[dict] = None - custom metadata to update
-
-        Returns
-        -------
-        None
-
-        """
+        """Update metadata for a specific data asset."""
         client.data_assets.update_metadata(data_asset_id, update_params)
 
-    @mcp.tool()
+
+    @mcp.tool(description=client.data_assets.wait_until_ready.__doc__ + ADDITIONAL_INSTRUCTIONS["wait_until_ready"])
     def wait_until_ready(
         data_asset: DataAssetModel,
         polling_interval: float = 5,
         timeout: float | None = None,
     ) -> DataAssetModel:
-        """Wait until a data asset is ready.
-
-        This tool blocks until the specified data asset reaches a ready state.
-
-        Parameters
-        ----------
-        data_asset : DataAssetModel - the data asset to wait for;
-            values: {"id": str}
-
-        polling_interval : float - interval in seconds to poll the data asset status;
-            values: positive number representing seconds between status checks
-
-        timeout : float | None - maximum time in seconds to wait for the data asset to be ready;
-            values: positive number of seconds, or None to wait indefinitely
-
-        Returns
-        -------
-        DataAssetModel
-            The updated data asset object once it reaches a ready state.
-        """
+        """Wait until a data asset is ready."""
         return client.data_assets.wait_until_ready(
             DataAsset(**data_asset.model_dump(exclude_none=True)),
             polling_interval=polling_interval,
             timeout=timeout,
+        )
+
+
+    @mcp.tool(description=client.data_assets.create_data_asset.__doc__)
+    def create_data_asset(data_asset_params: DataAssetParamsModel) -> DataAssetModel:
+        """Create a new data asset."""
+        return client.data_assets.create_data_asset(
+            DataAsset(**data_asset_params.model_dump(exclude_none=True))
         )

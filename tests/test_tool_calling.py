@@ -75,7 +75,7 @@ test_response = [
     # --------------------------------------------------------------
     {
         "id": "search_capsules_query_filter_sort",
-        "prompt": "query for capsule with the 'DNA' in their names, return 20 capsules, "
+        "prompt": "query for capsule with query 'DNA' return 20 capsules, "
         "sorted by name in ascending order, and filter where there are 'aa' tag",
         "expected": {
             "name": "search_capsules",
@@ -182,10 +182,10 @@ test_response = [
     },
     {
         "id": "search_data_assets_ownership_mine",
-        "prompt": "show my data assets",
+        "prompt": "showdata assets that are owned by me",
         "expected": {
             "name": "search_data_assets",
-            "input": {"search_params": {"ownership": "mine"}},
+            "input": {"search_params": {"ownership": "created"}},
         },
     },
     {
@@ -208,7 +208,7 @@ test_response = [
             "name": "search_data_assets",
             "input": {
                 "search_params": {
-                    "query": "RNA",
+                    "query": "name:RNA",
                     "limit": 20,
                     "sort_field": "name",
                     "sort_order": "asc",
@@ -221,7 +221,7 @@ test_response = [
         "id": "search_data_assets_complex_external_ml",
         "prompt": (
             "find 15 external data assets that, "
-            "sorted by size descending, with 'machine learning' in description"
+            "sorted by size descending, query for 'machine learning'"
         ),
         "expected": {
             "name": "search_data_assets",
@@ -459,3 +459,19 @@ def test_prompt_generating_the_right_tool_usage(prompt: str, expected_response: 
         diff.pop(extra, None)
 
     assert not diff, f"toolUsage diverges from expected: {diff!r}"
+
+
+
+if __name__ == "__main__":
+    from mcp_client import get_tools
+    from rich import print
+
+    tools = get_tools()
+    id_ = "search_data_assets_origin_external"
+    tc = [t for t in test_response if t["id"] == id_][0]
+    response = call_bedrock(tc["prompt"], tools=tools)
+    toolUse = response["output"]["message"]["content"][-1]["toolUse"]
+    del toolUse["toolUseId"]
+    print(f"Prompt: {tc['prompt']}")
+    print(response["output"]["message"]["content"][-1]["toolUse"])
+    print("excpected:\n", tc["expected"])

@@ -1,5 +1,5 @@
 from codeocean import CodeOcean
-from codeocean.computation import Computation, Folder, RunParams
+from codeocean.computation import Computation, DownloadFileURL, Folder, RunParams
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
@@ -7,121 +7,38 @@ from codeocean_mcp_server.models import dataclass_to_pydantic
 RunParamssModel = dataclass_to_pydantic(RunParams)
 FolderModel = dataclass_to_pydantic(Folder)
 ComputationModel = dataclass_to_pydantic(Computation)
+DownloadFileURLModel = dataclass_to_pydantic(DownloadFileURL)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
-    @mcp.tool()
+    @mcp.tool(description=client.computations.get_computation.__doc__)
     def get_computation(computation_id: str) -> list[ComputationModel]:
-        """Retrieve a specific computation by its unique identifier.
-
-        Parameters:
-        ----------
-        computation_id : str - unique identifier of the computation to retrieve;
-                values: alphanumeric computation ID from Code Ocean
-
-        """
+        """Retrieve a specific computation by its unique identifier."""
         return client.computations.get_computation(computation_id)
 
 
-    @mcp.tool()
+    @mcp.tool(description=client.computations.run_capsule.__doc__)
     def run_capsule(run_params: RunParamssModel) -> FolderModel:
-        """Execute a capsule or a pipeline in Code Ocean and don't wait.
-
-        This tool runs a capsule OR pipeline in Code Ocean's cloud infrastructure, which are an
-        isolated environment containing code and its dependencies or even a full pipeline. 
-        The capsule or pipeline runs asynchronously.
-
-        The tool return the computation object that contains the status and ID of the run.
-        This tool does not wait until the capsule completes; it simply starts the run
-        Parameters (of `run_params`):
-        ----------
-        capsule_id : str | None - unique identifier of the capsule to execute; !IMPORTANT: dont use this paramter if you want to run a pipline, but still use the toolname 'run_capsule'
-                values: alphanumeric capsule ID from Code Ocean
-
-        pipeline_id : str | None - unique identifier of a pipeline to execute instead of a capsule; !IMPORTANT: use this paramter if you want to run a pipeline,  but still use the tool name 'run_capsule'!
-                values: alphanumeric pipeline ID from Code Ocean
-
-        version : int | None - specific version of the capsule/pipeline to run;
-                values: positive integer, defaults to latest published version
-
-        resume_run_id : str | None - computation ID to resume from a previous run;
-                values: alphanumeric computation ID from a prior execution
-
-        data_assets : list[DataAssetsRunParam] | None - input datasets to mount for the computation;
-                values: list of DataAssetsRunParam objects:
-                    - id: str - data asset ID to mount
-                    - mount: str - path where the data asset will be accessible
-
-        parameters : list[str] | None - positional command-line arguments to pass to the capsule, crucial to use the parameter 'parameters' exactly;
-
-        named_parameters : list[NamedRunParam] | None - named command-line parameters;
-                values: list of NamedRunParam:
-                    - param_name: str - parameter name
-                    - value: str - parameter value
-
-        processes : list[PipelineProcessParams] | None - configuration for pipeline processes;
-                values: list of PipelineProcessParams objects:
-                    - name: str - process name
-                    - parameters: list[str] | None - positional parameters for this process
-                    - named_parameters: list[NamedRunParam] | None - named parameters for this process
-        Note: if asked to run a pipeline, the parameter `pipeline_id` must be set and not the `capsule_id`.
-        """  # noqa: E501
+        """Execute a capsule or a pipeline in Code Ocean and don't wait."""
         return client.computations.run_capsule(run_params)
 
 
-    @mcp.tool()
+    @mcp.tool(description=client.computations.wait_until_completed.__doc__)
     def wait_until_completed(computation_id: str) -> ComputationModel:
-        """Wait until a computation completes and return its details.
-
-        This tool blocks until the specified computation reaches a terminal state
-        (either succeeded or failed). It retrieves the final status, output files,
-        and any error messages if applicable.
-
-        Parameters:
-        ----------
-        computation_id : str - unique identifier of the computation to wait for;
-                values: alphanumeric computation ID from Code Ocean
-
-        Returns
-        -------
-        ComputationModel
-            The final state of the computation, including:
-            - id: str - unique identifier of the computation
-            - status: str - current status (e.g., "succeeded", "failed")
-            - output_files: list[FileModel] - list of output files generated by the computation
-            - error_message: str | None - error message if the computation failed
-
-        """
+        """Wait until a computation completes and return its details."""
         return client.computations.wait_until_completed(computation_id)
 
 
-    @mcp.tool()
+    @mcp.tool(description=client.computations.list_computation_results.__doc__)
     def list_computation_results(computation_id: str) -> FolderModel:
-        """List the output files generated by a completed computation.
-
-        This tool retrieves the directory structure of result files produced by a
-        specific computation. It can be used after a computation has completed to
-        access the output files.
-
-        Parameters
-        ----------
-        computation_id : str - unique identifier of the computation to list results for;
-                values: alphanumeric computation ID from Code Ocean
-
-        Returns
-        -------
-        FolderModel
-            A folder structure containing the computation's result files:
-            - items: list[FolderItem] - list of files and subdirectories in the results
-                Each FolderItem contains:
-                    - name: str - file or directory name
-
-        """
+        """List the output files generated by a completed computation."""
         return client.computations.list_computation_results(computation_id)
 
 
+    @mcp.tool(description=client.computations.get_result_file_download_url.__doc__)
+    def get_result_file_download_url(computation_id: str, file_path: str) -> DownloadFileURLModel:
+        """Get the download URL for a specific result file from a computation."""
+        return client.computations.get_result_file_download_url(computation_id, file_path)
 
-
-# to add: get_result_file_download_url

@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DEFAULT_MODEL = "amazon.nova-pro-v1:0"
-# DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+# DEFAULT_MODEL = "amazon.nova-pro-v1:0"
+DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
 BEDROCK_PROFILE = os.getenv("BEDROCK_PROFILE")
 REGION = os.getenv("REGION")
 

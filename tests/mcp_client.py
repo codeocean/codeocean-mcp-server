@@ -33,6 +33,8 @@ def get_tools(sever=SERVER) -> list[dict]:
 
 
 if __name__ == "__main__":
+    from bedrock_tools_converter import convert_tool_format
     from rich import print
-    tool = [t for t in get_tools() if t.name=='run_capsule'][0]
-    print(tool)
+
+    tools = convert_tool_format(get_tools(), "anthropic.claude-3-5-sonnet-20240620-v1:0")
+    print(tools)
