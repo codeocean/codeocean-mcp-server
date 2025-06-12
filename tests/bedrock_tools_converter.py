@@ -1,5 +1,6 @@
 # bedrock_call.py
 
+import copy
 import re
 from typing import Any, Dict, List
 
@@ -9,27 +10,31 @@ from mcp.types import Tool
 # Bedrock naming rules: 1–64 chars, letters/numbers/underscore/hyphen only
 _NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
-def _sanitize_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
-    """Return a shallow copy of *schema* containing only keys permitted by Bedrock's ToolInputSchema (see docs)."""
-    _ALLOWED_SCHEMA_KEYS = {"type", "properties", "required", "description", "title"}
-    return {k: v for k, v in schema.items() if k in _ALLOWED_SCHEMA_KEYS}
 
 
-def convert_tool_format_nova(tools: list[Tool]) -> list[str, Any]:
-    """Convert tools into the format required for the Bedrock API."""
-    converted_tools = []
 
-    for tool in tools:
-        converted_tool = {
-            "toolSpec": {
-                "name": tool.name,
-                "description": tool.description,
-                "inputSchema": {"json": _sanitize_schema(tool.inputSchema)},
-            }
-        }
-        converted_tools.append(converted_tool)
+def prune_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively prune forbidden keys from a schema."""
+    forbidden_keys = {"anyOf", "$schema", "$ref"}
+    conversion = {"$defs": "description"}
+    pruned = copy.deepcopy(schema)
 
-    return {"tools": converted_tools}
+    def _prune(node: Any):
+        if isinstance(node, dict):
+            for key in list(node.keys()):
+                if key in forbidden_keys:
+                    del node[key]
+                elif key in conversion:
+                    node[conversion[key]] = str(node.pop(key))
+                else:
+                    _prune(node[key])
+        elif isinstance(node, list):
+            for item in node:
+                _prune(item)
+
+    _prune(pruned)
+    return pruned
+
 
 def _sanitize_name(name: str) -> str:
     # Replace invalid chars with underscore and trim length
@@ -42,11 +47,10 @@ def validate_schema(schema: Dict[str, Any]) -> None:
     Draft202012Validator.check_schema(schema)
 
 
-def convert_tool_format(tools: List[Tool], model:str) -> Dict[str, List[Dict[str, Any]]]:
+def convert_tool_format(
+    tools: List[Tool], model: str
+) -> Dict[str, List[Dict[str, Any]]]:
     """Convert MCP tools into a Bedrock Draft 2020-12-compliant toolConfig."""
-    if "amazon.nova" in model:
-        return convert_tool_format_nova(tools)
-
     # For other models, we need to convert tools to the Bedrock format
     converted = []
     for tool in tools:
@@ -69,5 +73,8 @@ def convert_tool_format(tools: List[Tool], model:str) -> Dict[str, List[Dict[str
                 }
             }
         )
+
+    if "amazon.nova" in model:
+        converted = prune_schema(converted)
 
     return {"tools": converted}
