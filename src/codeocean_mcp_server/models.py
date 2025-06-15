@@ -69,8 +69,14 @@ def dataclass_to_pydantic(
 
         model.model_json_schema = custom_json_schema
 
-    # 6) Rebuild to resolve any remaining forward refs
+    
     model.model_rebuild()
+    
+    def to_dict_method(self):
+        return self.model_dump()
+    
+    # 7) Add a method to convert the model instance to a dictionary
+    model.to_dict = to_dict_method
 
     cache[data_class] = model
     return model
