@@ -2,6 +2,7 @@ from codeocean import CodeOcean
 from codeocean.computation import Computation, DownloadFileURL, Folder, RunParams
 from mcp.server.fastmcp import FastMCP
 
+from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
 RunParamsModel = dataclass_to_pydantic(RunParams)
@@ -30,7 +31,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=client.computations.wait_until_completed.__doc__)
     def wait_until_completed(computation_id: str) -> ComputationModel:
         """Wait until a computation completes and return its details."""
-        computation = Computation(id =  computation_id)
+
+        # first get the computation based on the computation_id:
+        computation = client.computations.get_computation(computation_id)
         return client.computations.wait_until_completed(computation=computation)
 
     @mcp.tool(
@@ -49,3 +52,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.computations.get_result_file_download_url(
             computation_id, file_path
         )
+
+    @mcp.tool(description="Download file from URL and return its content (first 5000 characters)")
+    def download_file_and_read(file_url: DownloadFileURLModel) -> str:
+        """Download a file using the provided URL and return its content."""
+        return download_and_read_file(file_url.url)
