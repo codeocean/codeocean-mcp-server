@@ -4,7 +4,7 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
-RunParamssModel = dataclass_to_pydantic(RunParams)
+RunParamsModel = dataclass_to_pydantic(RunParams)
 FolderModel = dataclass_to_pydantic(Folder)
 ComputationModel = dataclass_to_pydantic(Computation)
 DownloadFileURLModel = dataclass_to_pydantic(DownloadFileURL)
@@ -23,14 +23,15 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.computations.get_computation(computation_id)
 
     @mcp.tool(description=client.computations.run_capsule.__doc__)
-    def run_capsule(run_params: RunParamssModel) -> FolderModel:
+    def run_capsule(run_params: RunParamsModel) -> FolderModel:
         """Execute a capsule or a pipeline in Code Ocean and don't wait."""
         return client.computations.run_capsule(run_params)
 
     @mcp.tool(description=client.computations.wait_until_completed.__doc__)
     def wait_until_completed(computation_id: str) -> ComputationModel:
         """Wait until a computation completes and return its details."""
-        return client.computations.wait_until_completed(computation_id)
+        computation = Computation(id =  computation_id)
+        return client.computations.wait_until_completed(computation=computation)
 
     @mcp.tool(
         description=client.computations.list_computation_results.__doc__
