@@ -18,7 +18,7 @@ def main():
 
     mcp = FastMCP(
         name="Code Ocean",
-        description="MCP server for Code Ocean: search & run capsules, pipelines, and assets.",
+        description=f"MCP server for Code Ocean: search & run capsules, pipelines, and assets. using code ocean domain: {domain}.",
     )
 
     capsules.add_tools(mcp, client)

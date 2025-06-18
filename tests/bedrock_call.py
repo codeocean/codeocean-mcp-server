@@ -23,7 +23,7 @@ def call_bedrock(
     model: str = DEFAULT_MODEL,
     temperature: float = 0.0,
 ) -> Dict[str, Any]:
-    """Send *prompt* (and optional tools) to Amazon Bedrock via the Converse API."""
+    """Send prompt (and optional tools) to Amazon Bedrock via the Converse API."""
     payload: Dict[str, Any] = {
         "modelId": model,
         "messages": [{"role": "user", "content": [{"text": prompt}]}],
