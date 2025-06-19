@@ -24,7 +24,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.computations.get_computation(computation_id)
 
     @mcp.tool(description=client.computations.run_capsule.__doc__)
-    def run_capsule(run_params: RunParamsModel) -> FolderModel:
+    def run_capsule(run_params: RunParamsModel) -> ComputationModel:
         """Execute a capsule or a pipeline in Code Ocean and don't wait."""
         return client.computations.run_capsule(run_params)
 
@@ -53,7 +53,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             computation_id, file_path
         )
 
-    @mcp.tool(description="Download file from URL and return its content (first 5000 characters)")
-    def download_file_and_read(file_url: DownloadFileURLModel) -> str:
+    @mcp.tool(description="Use when you want to read the content of a file from a computation")
+    def download_and_read_a_file_from_computation(computation_id: str, file_path: str) -> str:
         """Download a file using the provided URL and return its content."""
+        file_url = client.computations.get_result_file_download_url(computation_id, file_path)
         return download_and_read_file(file_url.url)
