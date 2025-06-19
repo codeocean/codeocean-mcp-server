@@ -13,6 +13,7 @@ from codeocean.data_asset import (
 )
 from mcp.server.fastmcp import FastMCP
 
+from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
 DataAssetSearchParamsModel = dataclass_to_pydantic(DataAssetSearchParams)
@@ -22,7 +23,6 @@ DataAssetUpdateParamsModel = (dataclass_to_pydantic(DataAssetUpdateParams),)
 DataAssetModel = dataclass_to_pydantic(DataAsset)
 DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
-
 
 domain = os.getenv("CODEOCEAN_DOMAIN")
 
@@ -70,6 +70,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.data_assets.get_data_asset_file_download_url(
             data_asset_id, file_path
         )
+
+    @mcp.tool(description="Use when you want to read the content of a file from a data asset")
+    def download_and_read_a_file_from_data_asset(data_asset_id: str, file_path: str) -> str:
+        """Download a file using the provided URL and return its content."""
+        file_url = client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path)
+        return download_and_read_file(file_url.url)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
     def list_data_asset_files(data_asset_id: str) -> FolderModel:
