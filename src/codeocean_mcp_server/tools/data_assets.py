@@ -40,7 +40,7 @@ ADDITIONAL_INSTRUCTIONS = {
         "Search for data assets (external or internal). "
         "You may filter by fields such as `origin`, tags, or other criteria supported by the SDK."
     ),
-    "create_data_asset": f"You can link to the created data ssets with the 'data_asset_id' with the pattern: {domain} with /data-assets/<data_asset_id>."
+    "create_data_asset": f"You can link to the created data ssets with the 'data_asset_id' with the pattern: {domain} with /data-assets/<data_asset_id>.",
 }
 
 
@@ -71,10 +71,16 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             data_asset_id, file_path
         )
 
-    @mcp.tool(description="Use when you want to read the content of a file from a data asset")
-    def download_and_read_a_file_from_data_asset(data_asset_id: str, file_path: str) -> str:
+    @mcp.tool(
+        description="Use when you want to read the content of a file from a data asset"
+    )
+    def download_and_read_a_file_from_data_asset(
+        data_asset_id: str, file_path: str
+    ) -> str:
         """Download a file using the provided URL and return its content."""
-        file_url = client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path)
+        file_url = client.data_assets.get_data_asset_file_download_url(
+            data_asset_id, file_path
+        )
         return download_and_read_file(file_url.url)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
@@ -87,7 +93,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         data_asset_id: str, update_params: DataAssetUpdateParamsModel
     ) -> DataAssetModel:
         """Update metadata for a specific data asset."""
-        client.data_assets.update_metadata(data_asset_id, update_params)
+        update_params = DataAssetUpdateParams(**update_params)
+        return client.data_assets.update_metadata(data_asset_id, update_params)
 
     @mcp.tool(
         description=client.data_assets.wait_until_ready.__doc__
@@ -105,7 +112,10 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             timeout=timeout,
         )
 
-    @mcp.tool(description=client.data_assets.create_data_asset.__doc__ + ADDITIONAL_INSTRUCTIONS["create_data_asset"])
+    @mcp.tool(
+        description=client.data_assets.create_data_asset.__doc__
+        + ADDITIONAL_INSTRUCTIONS["create_data_asset"]
+    )
     def create_data_asset(data_asset_params: DataAssetParamsModel) -> DataAssetModel:
         """Create a new data asset."""
         return client.data_assets.create_data_asset(data_asset_params)
