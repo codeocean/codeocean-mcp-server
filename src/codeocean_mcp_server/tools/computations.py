@@ -11,7 +11,11 @@ ComputationModel = dataclass_to_pydantic(Computation)
 DownloadFileURLModel = dataclass_to_pydantic(DownloadFileURL)
 
 ADDITIONAL_INSTRUCTIONS = {
-    "list_computation_results": " computation_id is required as string"
+    "list_computation_results": " computation_id is required as string",
+    "run_capsule": """
+        Typical workflow: 1) run_capsule() to start execution, 2) wait_until_completed() to
+        monitor progress, 3) list_computation_results() and get_result_file_download_url()
+        to retrieve outputs."""
 }
 
 
@@ -23,7 +27,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Retrieve a specific computation by its unique identifier."""
         return client.computations.get_computation(computation_id)
 
-    @mcp.tool(description=client.computations.run_capsule.__doc__)
+    @mcp.tool(description=client.computations.run_capsule.__doc__ + ADDITIONAL_INSTRUCTIONS["run_capsule"])
     def run_capsule(run_params: RunParamsModel) -> ComputationModel:
         """Execute a capsule or a pipeline in Code Ocean and don't wait."""
         return client.computations.run_capsule(run_params)
