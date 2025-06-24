@@ -62,7 +62,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
     ) -> DataAssetSearchResults:
-        """Retrieve data assets that match a rich set of search criteria, when asked for data assets or datasets."""
+        """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(
             **search_params.model_dump(exclude_none=True)
         )
@@ -135,6 +135,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             + ADDITIONAL_INSTRUCTIONS["create_data_asset"]
         )
     )
-    def create_data_asset(data_asset_params: DataAssetParamsModel) -> DataAssetModel:
+    def create_data_asset(
+        data_asset_params: DataAssetParamsModel,
+    ) -> DataAssetModel:
         """Create a new data asset."""
         return client.data_assets.create_data_asset(data_asset_params)

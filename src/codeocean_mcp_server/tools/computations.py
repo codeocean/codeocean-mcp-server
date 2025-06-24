@@ -70,7 +70,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def get_result_file_download_url(
         computation_id: str, file_path: str
     ) -> DownloadFileURLModel:
-        """Get the download URL for a specific result file from a computation."""
+        """Get download URL for a specific result file from computation."""
         return client.computations.get_result_file_download_url(
             computation_id, file_path
         )
