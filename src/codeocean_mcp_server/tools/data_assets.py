@@ -28,19 +28,25 @@ domain = os.getenv("CODEOCEAN_DOMAIN")
 
 ADDITIONAL_INSTRUCTIONS = {
     "get_data_asset_file_download_url": (
-        "Call only when the data asset is already created and in a ready state. "
-        "If the asset may not yet be ready, first use `wait_until_ready` to poll until readiness, "
-        "then retrieve the download URL."
+        "Call only when the data asset is already created and in a ready "
+        "state. If the asset may not yet be ready, first use "
+        "`wait_until_ready` to poll until readiness, then retrieve the "
+        "download URL."
     ),
     "wait_until_ready": (
-        "Poll until the specified data asset becomes ready before performing further operations "
-        "(e.g., downloading files). You can set `polling_interval` and optional `timeout`."
+        "Poll until the specified data asset becomes ready before "
+        "performing further operations (e.g., downloading files). You can "
+        "set `polling_interval` and optional `timeout`."
     ),
     "search_data_assets": (
-        "Search for data assets (external or internal). "
-        "You may filter by fields such as `origin`, tags, or other criteria supported by the SDK."
+        "Search for data assets (external or internal). You may filter by "
+        "fields such as `origin`, tags, or other criteria supported by the "
+        "SDK."
     ),
-    "create_data_asset": f"You can link to the created data ssets with the 'data_asset_id' with the pattern: {domain} with /data-assets/<data_asset_id>.",
+    "create_data_asset": (
+        f"You can link to the created data ssets with the 'data_asset_id' "
+        f"with the pattern: {domain} with /data-assets/<data_asset_id>."
+    ),
 }
 
 
@@ -48,20 +54,26 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
     @mcp.tool(
-        description=client.data_assets.search_data_assets.__doc__
-        + ADDITIONAL_INSTRUCTIONS["search_data_assets"]
+        description=(
+            client.data_assets.search_data_assets.__doc__
+            + ADDITIONAL_INSTRUCTIONS["search_data_assets"]
+        )
     )
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
     ) -> DataAssetSearchResults:
         """Retrieve data assets that match a rich set of search criteria, when asked for data assets or datasets."""
-        params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
+        params = DataAssetSearchParams(
+            **search_params.model_dump(exclude_none=True)
+        )
         return client.data_assets.search_data_assets(params)
 
     @mcp.tool(
-        description=client.data_assets.get_data_asset_file_download_url.__doc__
-        + ADDITIONAL_INSTRUCTIONS["get_data_asset_file_download_url"]
-    )  # noqa: E501
+        description=(
+            client.data_assets.get_data_asset_file_download_url.__doc__
+            + ADDITIONAL_INSTRUCTIONS["get_data_asset_file_download_url"]
+        )
+    )
     def get_data_asset_file_download_url(
         data_asset_id: str,
         file_path: str | None = None,
@@ -72,7 +84,10 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
 
     @mcp.tool(
-        description="Use when you want to read the content of a file from a data asset"
+        description=(
+            "Use when you want to read the content of a file from a "
+            "data asset"
+        )
     )
     def download_and_read_a_file_from_data_asset(
         data_asset_id: str, file_path: str
@@ -97,8 +112,10 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.data_assets.update_metadata(data_asset_id, update_params)
 
     @mcp.tool(
-        description=client.data_assets.wait_until_ready.__doc__
-        + ADDITIONAL_INSTRUCTIONS["wait_until_ready"]
+        description=(
+            client.data_assets.wait_until_ready.__doc__
+            + ADDITIONAL_INSTRUCTIONS["wait_until_ready"]
+        )
     )
     def wait_until_ready(
         data_asset: DataAssetModel,
@@ -113,8 +130,10 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
 
     @mcp.tool(
-        description=client.data_assets.create_data_asset.__doc__
-        + ADDITIONAL_INSTRUCTIONS["create_data_asset"]
+        description=(
+            client.data_assets.create_data_asset.__doc__
+            + ADDITIONAL_INSTRUCTIONS["create_data_asset"]
+        )
     )
     def create_data_asset(data_asset_params: DataAssetParamsModel) -> DataAssetModel:
         """Create a new data asset."""

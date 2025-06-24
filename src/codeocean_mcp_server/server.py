@@ -12,13 +12,17 @@ def main():
     token = os.getenv("CODEOCEAN_TOKEN")
     if not domain or not token:
         raise ValueError(
-            "Environment variables CODEOCEAN_DOMAIN and CODEOCEAN_TOKEN must be set."
+            "Environment variables CODEOCEAN_DOMAIN and "
+            "CODEOCEAN_TOKEN must be set."
         )
     client = CodeOcean(domain=domain, token=token)
 
     mcp = FastMCP(
         name="Code Ocean",
-        description=f"MCP server for Code Ocean: search & run capsules, pipelines, and assets. using code ocean domain: {domain}.",
+        description=(
+            f"MCP server for Code Ocean: search & run capsules, "
+            f"pipelines, and assets. using code ocean domain: {domain}."
+        ),
     )
 
     capsules.add_tools(mcp, client)

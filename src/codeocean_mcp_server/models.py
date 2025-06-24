@@ -17,11 +17,17 @@ def dataclass_to_pydantic(
         cache = {}
     if data_class in cache:
         return cache[data_class]
-    assert is_dataclass(data_class), f"{data_class.__name__} is not a dataclass"
+    assert is_dataclass(data_class), (
+        f"{data_class.__name__} is not a dataclass"
+    )
 
     # 1) Resolve all annotations to real types (no strings)
-    module_ns = vars(__import__(data_class.__module__, fromlist=["*"]))
-    type_hints = get_type_hints(data_class, globalns=module_ns, localns=module_ns)
+    module_ns = vars(
+        __import__(data_class.__module__, fromlist=["*"])
+    )
+    type_hints = get_type_hints(
+        data_class, globalns=module_ns, localns=module_ns
+    )
 
     definitions: dict[str, tuple[type, Any]] = {}
     for field in fields(data_class):
@@ -46,7 +52,9 @@ def dataclass_to_pydantic(
         field_info = default
         if field.metadata and "description" in field.metadata:
             # Create a Pydantic Field with description
-            field_info = Field(default=default, description=field.metadata["description"])
+            field_info = Field(
+                default=default, description=field.metadata["description"]
+            )
 
         definitions[field.name] = (field_type, field_info)
 
@@ -69,16 +77,13 @@ def dataclass_to_pydantic(
 
         model.model_json_schema = custom_json_schema
 
-    
     model.model_rebuild()
-    
+
     def to_dict_method(self):
         return self.model_dump()
-    
+
     # 7) Add a method to convert the model instance to a dictionary
     model.to_dict = to_dict_method
 
     cache[data_class] = model
     return model
-
-

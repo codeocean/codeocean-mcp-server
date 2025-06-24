@@ -3,7 +3,7 @@
 import requests
 
 # Constants
-MAX_FILE_CONTENT_LENGTH = 50_000  # Maximum length of content to read from a file
+MAX_FILE_CONTENT_LENGTH = 50_000  # Maximum length of content to read
 DOWNLOAD_TIMEOUT = 30
 
 
