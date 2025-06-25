@@ -19,43 +19,32 @@ DataAssetAttachResultsModel = dataclass_to_pydantic(DataAssetAttachResults)
 CapsuleModel = dataclass_to_pydantic(Capsule)
 ComputationModel = dataclass_to_pydantic(Computation)
 
-ADDITIONAL_INSTRUCTIONS = {
-    "search_capsules": (
-        "Use only for capsule searches. "
-        "Provide only the minimal required parameters (e.g. limit=10); "
-        "do not include optional params"
-        "like sort_by or sort_order unless requested."
-    ),
-    "get_capsule": (
-        "Use only to fetch metadata for a known capsule ID. "
-        "Do not use for searching."
-    ),
-    "attach_data_assets": (
-        "Accepts a list of parameter objects (e.g. [{'id': '...'}]), "
-        "not just a list of IDs."
-    ),
-}
-
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
     @mcp.tool(
-        description=client.capsules.search_capsules.__doc__
-        + ADDITIONAL_INSTRUCTIONS["search_capsules"]
+        description=(
+            str(client.capsules.search_capsules.__doc__)
+            + "Use only for capsule searches. "
+            "Provide only the minimal required parameters (e.g. limit=10); "
+            "do not include optional params"
+            "like sort_by or sort_order unless requested."
+        )
     )
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
     ) -> CapsuleSearchResultsModel:
         """Search for capsules matching specified criteria."""
-        params = CapsuleSearchParams(
-            **search_params.model_dump(exclude_none=True)
-        )
+        params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         return client.capsules.search_capsules(params)
 
     @mcp.tool(
-        description=client.capsules.attach_data_assets.__doc__
-        + ADDITIONAL_INSTRUCTIONS["attach_data_assets"]
+        description=(
+            str(client.capsules.attach_data_assets.__doc__)
+            + "Accepts a list of parameter objects (e.g. [{'id': '...'}]), "
+            "not just a list of IDs."
+        )
     )
     def attach_data_assets(
         capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
@@ -64,8 +53,11 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
 
     @mcp.tool(
-        description=client.capsules.get_capsule.__doc__
-        + ADDITIONAL_INSTRUCTIONS["get_capsule"]
+        description=(
+            str(client.capsules.get_capsule.__doc__)
+            + "Use only to fetch metadata for a known capsule ID. "
+            "Do not use for searching."
+        )
     )
     def get_capsule(capsule_id: str) -> CapsuleModel:
         """Retrieve a capsule by its ID."""
