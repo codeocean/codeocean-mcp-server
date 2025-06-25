@@ -25,7 +25,6 @@ DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
-
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
@@ -79,7 +78,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
     def list_data_asset_files(data_asset_id: str) -> FolderModel:
         """List files in a data asset."""
-        return client.data_assets.list_data_asset_files(data_asset_id)
+        return dataclass_to_pydantic(
+            client.data_assets.list_data_asset_files(data_asset_id)
+        )
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
@@ -87,7 +88,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     ) -> DataAssetModel:
         """Update metadata for a specific data asset."""
         update_params = DataAssetUpdateParams(**update_params)
-        return client.data_assets.update_metadata(data_asset_id, update_params)
+        return dataclass_to_pydantic(
+            client.data_assets.update_metadata(data_asset_id, update_params)
+        )
 
     @mcp.tool(
         description=(
@@ -103,11 +106,14 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         timeout: float | None = None,
     ) -> DataAssetModel:
         """Wait until a data asset is ready."""
-        return client.data_assets.wait_until_ready(
+
+        result = client.data_assets.wait_until_ready(
             DataAsset(**data_asset.model_dump(exclude_none=True)),
             polling_interval=polling_interval,
             timeout=timeout,
         )
+
+        return dataclass_to_pydantic(result)
 
     @mcp.tool(
         description=(
@@ -120,4 +126,6 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         data_asset_params: DataAssetParamsModel,
     ) -> DataAssetModel:
         """Create a new data asset."""
-        return client.data_assets.create_data_asset(data_asset_params)
+        return dataclass_to_pydantic(
+            client.data_assets.create_data_asset(data_asset_params)
+        )
