@@ -49,7 +49,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
     )
     def attach_data_assets(
-        capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
+        capsule_id: str,
+        data_asset_ids: list[DataAssetAttachParamsModel]
     ) -> list[DataAssetAttachResultsModel]:
         """Attach data assets to a capsule."""
         return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
