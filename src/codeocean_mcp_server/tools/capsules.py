@@ -74,4 +74,4 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=client.capsules.list_computations.__doc__)
     def list_computations(capsule_id: str) -> list[ComputationModel]:
         """List all computations for a capsule."""
-        return client.capsules.list_computations()
+        return client.capsules.list_computations(capsule_id)
