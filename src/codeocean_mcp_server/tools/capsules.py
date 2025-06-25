@@ -37,7 +37,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     ) -> CapsuleSearchResultsModel:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        return client.capsules.search_capsules(params)
+        result: CapsuleSearchResults = client.capsules.search_capsules(params)
+        # Ensure the result is a CapsuleSearchResultsModel
+        return dataclass_to_pydantic(result)
 
     @mcp.tool(
         description=(
