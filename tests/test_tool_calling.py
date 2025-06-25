@@ -182,7 +182,7 @@ test_response = [
     },
     {
         "id": "search_data_assets_ownership_mine",
-        "prompt": "showdata assets that are owned by me",
+        "prompt": "show data assets that are owned by me",
         "expected": {
             "name": "search_data_assets",
             "input": {"search_params": {"ownership": "created"}},
