@@ -84,7 +84,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
-        data_asset_id: str, update_params: DataAssetUpdateParamsModel
+        data_asset_id: str, 
+        update_params: DataAssetUpdateParamsModel
     ) -> DataAssetModel:
         """Update metadata for a specific data asset."""
         update_params = DataAssetUpdateParams(**update_params)
