@@ -44,7 +44,7 @@ ADDITIONAL_INSTRUCTIONS = {
         "SDK."
     ),
     "create_data_asset": (
-        f"You can link to the created data ssets with the 'data_asset_id' "
+        f"You can link to the created data assets with the 'data_asset_id' "
         f"with the pattern: {domain} with /data-assets/<data_asset_id>."
     ),
 }
