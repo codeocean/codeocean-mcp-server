@@ -19,7 +19,6 @@ CapsuleModel = dataclass_to_pydantic(Capsule)
 ComputationModel = dataclass_to_pydantic(Computation)
 
 
-
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
