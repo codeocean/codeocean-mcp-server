@@ -15,9 +15,9 @@ CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 CapsuleSearchResultsModel = dataclass_to_pydantic(CapsuleSearchResults)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 DataAssetAttachResultsModel = dataclass_to_pydantic(DataAssetAttachResults)
-
 CapsuleModel = dataclass_to_pydantic(Capsule)
 ComputationModel = dataclass_to_pydantic(Computation)
+
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
