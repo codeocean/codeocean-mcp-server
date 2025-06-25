@@ -19,7 +19,7 @@ from codeocean_mcp_server.models import dataclass_to_pydantic
 DataAssetSearchParamsModel = dataclass_to_pydantic(DataAssetSearchParams)
 DataAssetSearchResultsModel = dataclass_to_pydantic(DataAssetSearchResults)
 FolderModel = dataclass_to_pydantic(Folder)
-DataAssetUpdateParamsModel = (dataclass_to_pydantic(DataAssetUpdateParams),)
+DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 DataAssetModel = dataclass_to_pydantic(DataAsset)
 DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
