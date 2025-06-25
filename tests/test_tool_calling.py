@@ -451,14 +451,14 @@ ids = [test["id"] for test in test_response]
 def test_prompt_generating_the_right_tool_usage(prompt: str, expected_response: dict):
     """Test that the prompt generates the expected tool usage."""
     response = call_bedrock(prompt=prompt, tools=tools)
-    toolUsage = response["output"]["message"]["content"][-1]["toolUse"]
-    diff = DeepDiff(expected_response, toolUsage, ignore_order=True)
+    tool_usage = response["output"]["message"]["content"][-1]["toolUse"]
+    diff = DeepDiff(expected_response, tool_usage, ignore_order=True)
 
     # remove any diffs about keys/items only in the ACTUAL (we only care that expected is present)
     for extra in ("dictionary_item_added", "iterable_item_added"):
         diff.pop(extra, None)
 
-    assert not diff, f"toolUsage diverges from expected: {diff!r}"
+    assert not diff, f"tool_usage diverges from expected: {diff!r}"
 
 
 

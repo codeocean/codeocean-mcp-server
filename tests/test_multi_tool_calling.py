@@ -28,11 +28,11 @@ agentic_prompt_chain = {
 
 def check_diff(expected_response: dict, response: dict) -> None:
     """Check that the response matches the expected response."""
-    toolUsage = response["output"]["message"]["content"][-1]["toolUse"]
-    diff = DeepDiff(expected_response, toolUsage, ignore_order=True)
+    tool_usage = response["output"]["message"]["content"][-1]["toolUse"]
+    diff = DeepDiff(expected_response, tool_usage, ignore_order=True)
     for extra in ("dictionary_item_added", "iterable_item_added"):
         diff.pop(extra, None)
-    assert not diff, f"toolUsage diverges from expected:\n\n-----\n{diff!r}\n------"
+    assert not diff, f"tool_usage diverges from expected:\n\n-----\n{diff!r}\n------"
 
 
 def test_prompt_generates_correct_tool_usage_sequence(
