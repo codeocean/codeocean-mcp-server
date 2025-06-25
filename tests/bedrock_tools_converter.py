@@ -75,6 +75,6 @@ def convert_tool_format(
         )
 
     if "amazon.nova" in model:
-        converted = prune_schema(converted)
+        converted = [prune_schema(item) for item in converted]
 
     return {"tools": converted}
