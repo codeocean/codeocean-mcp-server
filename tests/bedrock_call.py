@@ -7,17 +7,15 @@ from bedrock_tools_converter import convert_tool_format
 
 # DEFAULT_MODEL = "amazon.nova-pro-v1:0"
 BEDROCK_MODEL = os.getenv("BEDROCK_MODEL") or "amazon.nova-pro-v1:0"
-BEDROCK_PROFILE = os.getenv("BEDROCK_PROFILE")
-REGION = os.getenv("REGION")
 
-session = boto3.Session(profile_name=BEDROCK_PROFILE)
-client = session.client("bedrock-runtime", region_name=REGION)
+session = boto3.Session(profile_name=os.getenv("BEDROCK_PROFILE"))
+client = session.client("bedrock-runtime", region_name=os.getenv("REGION"))
 
 
 def call_bedrock(
     prompt: str,
     tools: List[Dict[str, Any]] | None = None,
-    model: str = DEFAULT_MODEL,
+    model: str = BEDROCK_MODEL,
     temperature: float = 0.0,
 ) -> Dict[str, Any]:
     """Send prompt (and optional tools) to Amazon Bedrock via the Converse API."""
