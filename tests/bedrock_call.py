@@ -29,4 +29,3 @@ def call_bedrock(
         payload["toolConfig"] = convert_tool_format(tools, model)
 
     return client.converse(**payload)
-
