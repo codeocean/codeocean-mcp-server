@@ -10,15 +10,16 @@ DOWNLOAD_TIMEOUT = 30
 def download_and_read_file(url: str) -> str:
     """Download file from URL and return first MAX_FILE_CONTENT_LENGTH characters."""
     try:
-        response = requests.get(url, timeout=DOWNLOAD_TIMEOUT)
-        response.raise_for_status()
-
-        # Read content directly from response, limiting to 5000 chars
-        content = response.text[:MAX_FILE_CONTENT_LENGTH]
-        return content
+        with requests.get(url, timeout=DOWNLOAD_TIMEOUT, stream=True) as response:
+            response.raise_for_status() 
+            # Read the first 'bytes_to_read' bytes of the response
+            bytes = response.raw.read(MAX_FILE_CONTENT_LENGTH)
+            # Decode the bytes into a string using the response's encoding 
+            return bytes.decode(response.encoding or "utf-8", errors="ignore")
 
     except requests.exceptions.RequestException as e:
         return f"Download error: {e}"
+
     except UnicodeDecodeError:
         # Handle binary files by reading as bytes and decoding
         try:
