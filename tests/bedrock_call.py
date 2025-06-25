@@ -6,7 +6,7 @@ import boto3
 from bedrock_tools_converter import convert_tool_format
 
 # DEFAULT_MODEL = "amazon.nova-pro-v1:0"
-DEFAULT_MODEL = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+BEDROCK_MODEL = os.getenv("BEDROCK_MODEL") or "amazon.nova-pro-v1:0"
 BEDROCK_PROFILE = os.getenv("BEDROCK_PROFILE")
 REGION = os.getenv("REGION")
 
