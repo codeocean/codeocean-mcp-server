@@ -111,7 +111,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.data_assets.create_data_asset.__doc___)
+            str(client.data_assets.create_data_asset.__doc__)
             + f"You can link to the created data assets with the 'data_asset_id' "
             f"with the pattern: {os.getenv('CODEOCEAN_DOMAIN', 'unknown')} with /data-assets/<data_asset_id>."
         )
