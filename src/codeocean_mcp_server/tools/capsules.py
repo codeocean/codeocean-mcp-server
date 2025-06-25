@@ -49,11 +49,13 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
     )
     def attach_data_assets(
-        capsule_id: str,
-        data_asset_ids: list[DataAssetAttachParamsModel]
+        capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
     ) -> list[DataAssetAttachResultsModel]:
         """Attach data assets to a capsule."""
-        return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
+        return [
+            dataclass_to_pydantic(result)
+            for result in client.capsules.attach_data_assets(capsule_id, data_asset_ids)
+        ]
 
     @mcp.tool(
         description=(
@@ -64,9 +66,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     )
     def get_capsule(capsule_id: str) -> CapsuleModel:
         """Retrieve a capsule by its ID."""
-        return client.capsules.get_capsule(capsule_id)
+        return dataclass_to_pydantic(client.capsules.get_capsule(capsule_id))
 
     @mcp.tool(description=client.capsules.list_computations.__doc__)
     def list_computations(capsule_id: str) -> list[ComputationModel]:
         """List all computations for a capsule."""
-        return client.capsules.list_computations(capsule_id)
+        return [
+            dataclass_to_pydantic(computation)
+            for computation in client.capsules.list_computations(capsule_id)
+        ]
