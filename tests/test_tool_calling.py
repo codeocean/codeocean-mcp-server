@@ -459,19 +459,3 @@ def test_prompt_generating_the_right_tool_usage(prompt: str, expected_response: 
         diff.pop(extra, None)
 
     assert not diff, f"tool_usage diverges from expected: {diff!r}"
-
-
-
-# if __name__ == "__main__":
-#     from mcp_client import get_tools
-#     from rich import print
-
-#     tools = get_tools()
-#     id_ = "attach_data_assets"
-#     tc = [t for t in test_response if t["id"] == id_][0]
-#     response = call_bedrock(tc["prompt"], tools=tools)
-#     toolUse = response["output"]["message"]["content"][-1]["toolUse"]
-#     del toolUse["toolUseId"]
-#     print(f"Prompt: {tc['prompt']}")
-#     print(response["output"]["message"]["content"][-1]["toolUse"])
-#     print("excpected:\n", tc["expected"])
