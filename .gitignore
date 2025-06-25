@@ -174,4 +174,3 @@ cython_debug/
 .pypirc
 mcp-client.json
 src/codeocean_mcp_server/tools/questions.md
-plans/
