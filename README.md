@@ -11,7 +11,7 @@ This MCP server provides tools to search and run capsules and pipelines, and man
 
 ## Installation
 
-Here's an exmple VS Code MCP server configuration:
+Here's an example VS Code MCP server configuration:
 ```json
 {
     ...
