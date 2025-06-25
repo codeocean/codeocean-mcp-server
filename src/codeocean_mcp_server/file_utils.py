@@ -8,7 +8,7 @@ DOWNLOAD_TIMEOUT = 30
 
 
 def download_and_read_file(url: str) -> str:
-    """Download file from URL and return first 5000 characters."""
+    """Download file from URL and return first MAX_FILE_CONTENT_LENGTH characters."""
     try:
         response = requests.get(url, timeout=DOWNLOAD_TIMEOUT)
         response.raise_for_status()

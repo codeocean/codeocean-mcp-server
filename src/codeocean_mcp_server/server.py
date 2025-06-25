@@ -21,7 +21,7 @@ def main():
         name="Code Ocean",
         description=(
             f"MCP server for Code Ocean: search & run capsules, "
-            f"pipelines, and assets. using code ocean domain: {domain}."
+            f"pipelines, and assets using Code Ocean domain {domain}."
         ),
     )
 
