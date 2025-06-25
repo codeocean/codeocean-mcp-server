@@ -45,7 +45,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Wait until a computation completes and return its details."""
         # first get the computation based on the computation_id:
         computation = client.computations.get_computation(computation_id)
-        return client.computations.wait_until_completed(computation=computation)
+        return client.computations.wait_until_completed(computation)
 
     @mcp.tool(
         description=(
