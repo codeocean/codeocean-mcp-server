@@ -125,6 +125,5 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         data_asset_params: DataAssetParamsModel,
     ) -> DataAssetModel:
         """Create a new data asset."""
-        return dataclass_to_pydantic(
-            client.data_assets.create_data_asset(data_asset_params)
-        )
+        params = DataAssetParams(**data_asset_params.model_dump(exclude_none=True))
+        return dataclass_to_pydantic(client.data_assets.create_data_asset(params))
