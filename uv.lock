@@ -385,7 +385,6 @@ dev = [
     { name = "langgraph" },
     { name = "pytest" },
     { name = "pytest-xdist" },
-    { name = "python-dotenv" },
     { name = "ruff" },
 ]
 
@@ -404,7 +403,6 @@ dev = [
     { name = "langgraph", specifier = ">=0.4.8" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-xdist", specifier = ">=3.0.0" },
-    { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "ruff", specifier = ">=0.11.11" },
 ]
 
