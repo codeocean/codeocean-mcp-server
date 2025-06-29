@@ -19,15 +19,3 @@ def download_and_read_file(url: str) -> str:
 
     except requests.exceptions.RequestException as e:
         return f"Download error: {e}"
-
-    except UnicodeDecodeError:
-        # Handle binary files by reading as bytes and decoding
-        try:
-            content = response.content.decode("utf-8", errors="ignore")[
-                :MAX_FILE_CONTENT_LENGTH
-            ]
-            return content
-        except Exception as e:
-            return f"Encoding error: {e}"
-    except Exception as e:
-        return f"Unexpected error: {e}"
