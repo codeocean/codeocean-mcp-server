@@ -5,7 +5,6 @@ from typing import Any, Dict, List
 import boto3
 from bedrock_tools_converter import convert_tool_format
 
-# DEFAULT_MODEL = "amazon.nova-pro-v1:0"
 BEDROCK_MODEL = os.getenv("BEDROCK_MODEL") or "amazon.nova-pro-v1:0"
 
 session = boto3.Session(profile_name=os.getenv("BEDROCK_PROFILE"))
