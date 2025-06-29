@@ -17,8 +17,6 @@ SERVER = StdioServerParameters(
     },
 )
 
-print(SERVER)
-
 
 def get_tools(sever=SERVER) -> list[dict]:
     """Get tools by connecting to the MCP server and listing available tools."""
@@ -32,4 +30,3 @@ def get_tools(sever=SERVER) -> list[dict]:
 
     loop = asyncio.new_event_loop()
     return loop.run_until_complete(async_server())
-
