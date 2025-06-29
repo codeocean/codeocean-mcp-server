@@ -82,7 +82,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
-        data_asset_id: str, 
+        data_asset_id: str,
         update_params: DataAssetUpdateParamsModel
     ) -> DataAssetModel:
         """Update metadata for a specific data asset."""
@@ -105,7 +105,6 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         timeout: float | None = None,
     ) -> DataAssetModel:
         """Wait until a data asset is ready."""
-
         result = client.data_assets.wait_until_ready(
             DataAsset(**data_asset.model_dump(exclude_none=True)),
             polling_interval=polling_interval,
