@@ -22,10 +22,8 @@ dev = [
   "hatch>=1.14.1",
   "ruff>=0.11.11",
   "pytest>=8.0.0",
-  "pytest-xdist>=3.0.0",
   "deepdiff>=8.5.0",
   "boto3>=1.38.32",
-  "langgraph>=0.4.8",
 ]
 
 [project.urls]
