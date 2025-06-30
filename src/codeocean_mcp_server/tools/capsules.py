@@ -11,12 +11,12 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
+CapsuleModel = dataclass_to_pydantic(Capsule)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 CapsuleSearchResultsModel = dataclass_to_pydantic(CapsuleSearchResults)
+ComputationModel = dataclass_to_pydantic(Computation)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 DataAssetAttachResultsModel = dataclass_to_pydantic(DataAssetAttachResults)
-CapsuleModel = dataclass_to_pydantic(Capsule)
-ComputationModel = dataclass_to_pydantic(Computation)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
@@ -27,7 +27,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             str(client.capsules.search_capsules.__doc__)
             + "Use only for capsule searches. "
             "Provide only the minimal required parameters (e.g. limit=10); "
-            "do not include optional params"
+            "do not include optional params "
             "like sort_by or sort_order unless requested."
         )
     )
@@ -36,9 +36,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     ) -> CapsuleSearchResultsModel:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        result: CapsuleSearchResults = client.capsules.search_capsules(params)
-        # Ensure the result is a CapsuleSearchResultsModel
-        return dataclass_to_pydantic(result)
+        return dataclass_to_pydantic(client.capsules.search_capsules(params))
 
     @mcp.tool(
         description=(
@@ -48,7 +46,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
     )
     def attach_data_assets(
-        capsule_id: str, data_asset_ids: list[DataAssetAttachParamsModel]
+        capsule_id: str,
+        data_asset_ids: list[DataAssetAttachParamsModel],
     ) -> list[DataAssetAttachResultsModel]:
         """Attach data assets to a capsule."""
         return [

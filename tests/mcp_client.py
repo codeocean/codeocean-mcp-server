@@ -18,11 +18,11 @@ SERVER = StdioServerParameters(
 )
 
 
-def get_tools(sever=SERVER) -> list[dict]:
+def get_tools(server=SERVER) -> list[dict]:
     """Get tools by connecting to the MCP server and listing available tools."""
 
     async def async_server():
-        async with stdio_client(SERVER) as (read_stream, write_stream):
+        async with stdio_client(server) as (read_stream, write_stream):
             async with ClientSession(read_stream, write_stream) as client:
                 await client.initialize()
                 raw_tools = await client.list_tools()

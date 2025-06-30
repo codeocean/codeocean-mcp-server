@@ -10,10 +10,10 @@ from mcp.server.fastmcp import FastMCP
 from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
-RunParamsModel = dataclass_to_pydantic(RunParams)
-FolderModel = dataclass_to_pydantic(Folder)
 ComputationModel = dataclass_to_pydantic(Computation)
 DownloadFileURLModel = dataclass_to_pydantic(DownloadFileURL)
+FolderModel = dataclass_to_pydantic(Folder)
+RunParamsModel = dataclass_to_pydantic(RunParams)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
@@ -30,9 +30,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(
         description=(
             str(client.computations.run_capsule.__doc__)
-            + "Typical workflow: 1) run_capsule() to start execution"
-            "2) wait_until_completed() to monitor progress"
-            "3) list_computation_results() and get_result_file_download_url()"
+            + "Typical workflow: 1) run_capsule() to start execution "
+            "2) wait_until_completed() to monitor progress "
+            "3) list_computation_results() and get_result_file_download_url() "
             "to retrieve outputs."
         )
     )
@@ -45,7 +45,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Wait until a computation completes and return its details."""
         # first get the computation based on the computation_id:
         computation = client.computations.get_computation(computation_id)
-        return client.computations.wait_until_completed(computation)
+        return dataclass_to_pydantic(client.computations.wait_until_completed(computation))
 
     @mcp.tool(
         description=(
@@ -60,23 +60,18 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
 
     @mcp.tool(description=(client.computations.get_result_file_download_url.__doc__))
-    def get_result_file_download_url(computation_id: str, file_path: str
-    ) -> DownloadFileURLModel:
+    def get_result_file_download_url(computation_id: str, file_path: str) -> DownloadFileURLModel:
         """Get download URL for a specific result file from computation."""
         return dataclass_to_pydantic(
-            client.computations.get_result_file_download_url(computation_id, file_path)
+            client.computations.get_result_file_download_url(computation_id, file_path),
         )
 
     @mcp.tool(
         description=(
-            "Use when you want to read the content of a file " "from a computation"
+            "Use when you want to read the content of a file from a computation"
         )
     )
-    def download_and_read_a_file_from_computation(
-        computation_id: str, file_path: str
-    ) -> str:
+    def download_and_read_a_file_from_computation(computation_id: str, file_path: str) -> str:
         """Download a file using the provided URL and return its content."""
-        file_url = client.computations.get_result_file_download_url(
-            computation_id, file_path
-        )
+        file_url = client.computations.get_result_file_download_url(computation_id, file_path)
         return download_and_read_file(file_url.url)

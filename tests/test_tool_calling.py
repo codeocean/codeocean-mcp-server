@@ -334,7 +334,7 @@ test_response = [
         },
     },
     # --------------------------------------------------------------
-    # list_computation_results"
+    # list_computation_results
     {
         "id": "list_computation_results",
         "prompt": "list results of computation with id: comp789",

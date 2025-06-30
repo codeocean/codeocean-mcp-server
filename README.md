@@ -5,31 +5,27 @@ Model Context Protocol (MCP) server for Code Ocean.
 This MCP server provides tools to search and run capsules and pipelines, and manage data assets.
 
 ## Table of Contents
+
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-    - [Installing in Visual Studio Code](#installing-in-visual-studion-code)
-    - [Installing in Claude Desktop](#installing-in-claude-desktop)
-    - [Installing in Cline](#installing-in-cline)
-    - [Installing in Roo Code](#installing-in-roo-code)
+    - [Visual Studio Code](#visual-studio-code)
+    - [Claude Desktop](#claude-desktop)
+    - [Cline](#cline)
+    - [Roo Code](#roo-code)
     - [Cursor](#cursor)
     - [Windsurf](#windsurf)
 
 ## Prerequisites
 
-### Installing uv
 1. Install `uv` from [Astral](https://docs.astral.sh/uv/getting-started/installation/) or the [GitHub README](https://github.com/astral-sh/uv#installation)
 2. Install Python 3.10 or newer using `uv python install 3.10` (or a more recent version)
-
-
-### Getting code ocean's token
-follow the instructions in [code ocean authentication](https://docs.codeocean.com/user-guide/code-ocean-api/authentication)
-
+3. Generate a Code Ocean access token. Follow instructions in the [Code Ocean user guide](https://docs.codeocean.com/user-guide/code-ocean-api/authentication).
 
 ## Installation
 
-## Installing in [visual studion code](https://code.visualstudio.com/)
+## [Visual Studio Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
 
-Here's an example VS Code MCP server configuration, where VS code can ask the user for the password (token):
+Here's an example VS Code MCP server configuration:
 ```json
 {
     ...
@@ -56,8 +52,10 @@ Here's an example VS Code MCP server configuration, where VS code can ask the us
     }
 }
 ```
---- 
-## Installing in [Claude Desktop](https://claude.ai/download)
+
+---
+
+## [Claude Desktop](https://modelcontextprotocol.io/quickstart/user)
 
 1.	Open the `claude_desktop_config.json` file:
  - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -79,8 +77,9 @@ Here's an example VS Code MCP server configuration, where VS code can ask the us
 }
 ```
 
---- 
-## Installing in [Cline](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev)
+---
+
+## [Cline](https://docs.cline.bot/mcp/configuring-mcp-servers)
 
 Cline stores all of its MCP settings in a JSON file called cline_mcp_settings.json. You can edit this either through the GUI (“Configure MCP Servers” in the MCP Servers pane) or by hand:
 1.	Open Cline and click the MCP Servers icon in the sidebar.
@@ -104,12 +103,9 @@ Cline stores all of its MCP settings in a JSON file called cline_mcp_settings.js
 ```
 4.	Save the file. Cline will automatically detect and launch the new server, making your Code Ocean tools available in chat ￼.
 
-[cline docs: Configuring MCP Servers](https://docs.cline.bot/mcp/configuring-mcp-servers)
-
-
 --- 
 
-## Installing in [Roo Code](https://docs.roocode.com/features/mcp/using-mcp-in-roo/)
+## [Roo Code](https://docs.roocode.com/features/mcp/using-mcp-in-roo/)
 
 Roo Code’s MCP support is configured globally across all workspaces via a JSON settings file or through its dedicated MCP Settings UI 
 
@@ -139,7 +135,8 @@ Roo Code’s MCP support is configured globally across all workspaces via a JSON
 2.	Insert the same "codeocean" block under "mcpServers" as above.
 3.	Save and restart.
 
---- 
+---
+
 ## [Cursor](https://docs.cursor.com/context/model-context-protocol)
 
 Cursor stores MCP servers in a JSON file at either ~/.cursor/mcp.json (global) or {project}/.cursor/mcp.json (project-specific)  ￼.
@@ -161,7 +158,7 @@ Cursor stores MCP servers in a JSON file at either ~/.cursor/mcp.json (global) o
 ```
 3.	Save the file. Cursor will automatically detect and launch the new server on next start.  ￼
 
---- 
+---
 
 ## [Windsurf](https://docs.windsurf.com/windsurf/cascade/mcp)
 
