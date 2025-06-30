@@ -7,12 +7,12 @@ This MCP server provides tools to search and run capsules and pipelines, and man
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Installing in Visual Studio Code](#installing-in-visual-studion-code)
-- [Installing in Claude Desktop](#installing-in-claude-desktop)
-- [Installing in Cline](#installing-in-cline)
-- [Installing in Roo Code](#installing-in-roo-code)
-- [Cursor](#cursor)
-- [Windsurf](#windsurf)
+    - [Installing in Visual Studio Code](#installing-in-visual-studion-code)
+    - [Installing in Claude Desktop](#installing-in-claude-desktop)
+    - [Installing in Cline](#installing-in-cline)
+    - [Installing in Roo Code](#installing-in-roo-code)
+    - [Cursor](#cursor)
+    - [Windsurf](#windsurf)
 
 ## Prerequisites
 
