@@ -4,6 +4,16 @@ Model Context Protocol (MCP) server for Code Ocean.
 
 This MCP server provides tools to search and run capsules and pipelines, and manage data assets.
 
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Installing in Visual Studio Code](#installing-in-visual-studion-code)
+- [Installing in Claude Desktop](#installing-in-claude-desktop)
+- [Installing in Cline](#installing-in-cline)
+- [Installing in Roo Code](#installing-in-roo-code)
+- [Cursor](#cursor)
+- [Windsurf](#windsurf)
+
 ## Prerequisites
 
 ### Installing uv
@@ -129,3 +139,48 @@ Roo Code’s MCP support is configured globally across all workspaces via a JSON
 2.	Insert the same "codeocean" block under "mcpServers" as above.
 3.	Save and restart.
 
+--- 
+## [Cursor](https://docs.cursor.com/context/model-context-protocol)
+
+Cursor stores MCP servers in a JSON file at either ~/.cursor/mcp.json (global) or {project}/.cursor/mcp.json (project-specific)  ￼.
+1.	Open .cursor/mcp.json (or create it if missing).  ￼
+2.	Add under "mcpServers":
+```json
+{
+  "mcpServers": {
+    "codeocean": {
+      "command": "uvx",
+      "args": ["codeocean-mcp-server"],
+      "env": {
+        "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+      }
+    }
+  }
+}
+```
+3.	Save the file. Cursor will automatically detect and launch the new server on next start.  ￼
+
+--- 
+
+## [Windsurf](https://docs.windsurf.com/windsurf/cascade/mcp)
+
+Windsurf (Cascade) uses mcp_config.json under ~/.codeium/windsurf/ (or via the Cascade → MCP Servers UI)  ￼.
+1.	Open your Windsurf Settings and navigate to Cascade → MCP Servers, then click View Raw Config to open mcp_config.json.  ￼
+2.	Insert the following under "mcpServers":
+```json
+{
+  "mcpServers": {
+    "codeocean": {
+      "command": "uvx",
+      "args": ["codeocean-mcp-server"],
+      "env": {
+        "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+      }
+    }
+  }
+}
+```
+
+3.	Save and restart Windsurf (or hit “Refresh” in the MCP panel).
