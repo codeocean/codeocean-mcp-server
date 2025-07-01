@@ -37,10 +37,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             "SDK."
         )
     )
-    def search_data_assets(search_params: DataAssetSearchParamsModel) -> DataAssetSearchResultsModel:
+    def search_data_assets(
+        search_params: DataAssetSearchParamsModel,
+    ) -> DataAssetSearchResultsModel:
         """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
-        return dataclass_to_pydantic(client.data_assets.search_data_assets(params))
+        return client.data_assets.search_data_assets(params)
 
     @mcp.tool(
         description=(
@@ -56,8 +58,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         file_path: str | None = None,
     ) -> DownloadFileURLModel:
         """Get a download URL for a specific file in a data asset."""
-        return dataclass_to_pydantic(
-            client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path),
+        return client.data_assets.get_data_asset_file_download_url(
+            data_asset_id, file_path
         )
 
     @mcp.tool(
@@ -65,17 +67,19 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             "Use when you want to read the content of a file from a data asset"
         )
     )
-    def download_and_read_a_file_from_data_asset(data_asset_id: str, file_path: str) -> str:
+    def download_and_read_a_file_from_data_asset(
+        data_asset_id: str, file_path: str
+    ) -> str:
         """Download a file using the provided URL and return its content."""
-        file_url = client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path)
+        file_url = client.data_assets.get_data_asset_file_download_url(
+            data_asset_id, file_path
+        )
         return download_and_read_file(file_url.url)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
     def list_data_asset_files(data_asset_id: str) -> FolderModel:
         """List files in a data asset."""
-        return dataclass_to_pydantic(
-            client.data_assets.list_data_asset_files(data_asset_id),
-        )
+        return client.data_assets.list_data_asset_files(data_asset_id)
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
@@ -84,9 +88,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     ) -> DataAssetModel:
         """Update metadata for a specific data asset."""
         update_params = DataAssetUpdateParams(**update_params)
-        return dataclass_to_pydantic(
-            client.data_assets.update_metadata(data_asset_id, update_params)
-        )
+        return client.data_assets.update_metadata(data_asset_id, update_params)
 
     @mcp.tool(
         description=(
@@ -108,7 +110,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             timeout=timeout,
         )
 
-        return dataclass_to_pydantic(result)
+        return result
 
     @mcp.tool(
         description=(
@@ -120,4 +122,4 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def create_data_asset(data_asset_params: DataAssetParamsModel) -> DataAssetModel:
         """Create a new data asset."""
         params = DataAssetParams(**data_asset_params.model_dump(exclude_none=True))
-        return dataclass_to_pydantic(client.data_assets.create_data_asset(params))
+        return client.data_assets.create_data_asset(params)
