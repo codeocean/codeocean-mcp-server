@@ -62,4 +62,3 @@ filterwarnings = [
   "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:botocore.auth",
   "ignore::DeprecationWarning:botocore.*",
 ]
-addopts = "-n auto --dist=loadscope"
