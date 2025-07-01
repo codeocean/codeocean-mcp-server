@@ -11,12 +11,8 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
-CapsuleModel = dataclass_to_pydantic(Capsule)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
-CapsuleSearchResultsModel = dataclass_to_pydantic(CapsuleSearchResults)
-ComputationModel = dataclass_to_pydantic(Computation)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
-DataAssetAttachResultsModel = dataclass_to_pydantic(DataAssetAttachResults)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
@@ -31,9 +27,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             "like sort_by or sort_order unless requested."
         )
     )
-    def search_capsules(
-        search_params: CapsuleSearchParamsModel,
-    ) -> CapsuleSearchResultsModel:
+    def search_capsules(search_params: CapsuleSearchParamsModel) -> CapsuleSearchResults:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         return client.capsules.search_capsules(params)
@@ -47,10 +41,14 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     )
     def attach_data_assets(
         capsule_id: str,
-        data_asset_ids: list[DataAssetAttachParamsModel],
-    ) -> list[DataAssetAttachResultsModel]:
+        attach_params: list[DataAssetAttachParamsModel],
+    ) -> list[DataAssetAttachResults]:
         """Attach data assets to a capsule."""
-        return client.capsules.attach_data_assets(capsule_id, data_asset_ids)
+        params = [
+            DataAssetAttachParams(**p.model_dump(exclude_none=True))
+            for p in attach_params
+        ]
+        return client.capsules.attach_data_assets(capsule_id, params)
 
     @mcp.tool(
         description=(
@@ -59,11 +57,11 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             "Do not use for searching."
         )
     )
-    def get_capsule(capsule_id: str) -> CapsuleModel:
+    def get_capsule(capsule_id: str) -> Capsule:
         """Retrieve a capsule by its ID."""
         return client.capsules.get_capsule(capsule_id)
 
     @mcp.tool(description=client.capsules.list_computations.__doc__)
-    def list_computations(capsule_id: str) -> list[ComputationModel]:
+    def list_computations(capsule_id: str) -> list[Computation]:
         """List all computations for a capsule."""
         return client.capsules.list_computations(capsule_id)
