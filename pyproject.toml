@@ -45,7 +45,7 @@ exclude = ["/.circleci"]
 packages = ["src/codeocean_mcp_server"]
 
 [tool.hatch.envs.default.scripts]
-test = "pytest -n auto"
+test = "pytest"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.10", "3.11", "3.12", "3.13"]
