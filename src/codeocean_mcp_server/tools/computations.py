@@ -20,7 +20,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
     @mcp.tool(description=client.computations.get_computation.__doc__)
-    def get_computation(computation_id: str) -> list[ComputationModel]:
+    def get_computation(computation_id: str) -> ComputationModel:
         """Retrieve a specific computation by its unique identifier."""
         return client.computations.get_computation(computation_id)
 
