@@ -399,7 +399,7 @@ test_response = [
         },
     },
     # --------------------------------------------------------------
-    # update metada: custome metadata
+    # update metadata: custom metadata
     {
         "id": "update_metadata_custom_metadata",
         "prompt": "update metadata for data asset with id: data_asset102, set custom metadata 'key1' to 'value1' and 'key2' to 'value2'",  # noqa: E501
