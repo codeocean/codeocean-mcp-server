@@ -390,12 +390,12 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "boto3", specifier = ">=1.38.43" },
+    { name = "boto3", specifier = ">=1.39.0" },
     { name = "deepdiff", specifier = ">=8.5.0" },
     { name = "hatch", specifier = ">=1.14.1" },
     { name = "mcp-python-client", specifier = ">=0.1.9" },
     { name = "pytest", specifier = ">=8.4.1" },
-    { name = "ruff", specifier = ">=0.11.11" },
+    { name = "ruff", specifier = ">=0.12.1" },
 ]
 
 [[package]]

@@ -3,7 +3,6 @@ import os
 from codeocean import CodeOcean
 from codeocean.data_asset import (
     DataAsset,
-    DataAssetAttachParams,
     DataAssetParams,
     DataAssetSearchParams,
     DataAssetSearchResults,
