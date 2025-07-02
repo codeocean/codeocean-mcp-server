@@ -46,7 +46,7 @@ def test_prompt_generates_correct_tool_usage_sequence(
         if not prompt:
             prompt = agentic_prompt_chain["prompt"]
         else:
-            prompt += str(responses) + "\nwhat is the next steps?\n"
+            prompt += str(responses) + "\nwhat is the next step?\n"
         response = call_bedrock(prompt=prompt, tools=tools)
         check_diff(step[0], response)
         responses.append(
