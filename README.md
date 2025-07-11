@@ -45,7 +45,8 @@ Here's an example VS Code MCP server configuration:
                 "args": ["codeocean-mcp-server"],
                 "env": {
                     "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-                    "CODEOCEAN_TOKEN": "${input:codeocean-token}"
+                    "CODEOCEAN_TOKEN": "${input:codeocean-token}",
+                    "AGENT_ID": "VS Code"
                 }
             }
         },
@@ -70,7 +71,8 @@ Here's an example VS Code MCP server configuration:
       "args": ["codeocean-mcp-server"],
       "env": {
         "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>",
+        "AGENT_ID": "Claude Desktop"
       }
     }
   }
@@ -93,7 +95,8 @@ Cline stores all of its MCP settings in a JSON file called cline_mcp_settings.js
       "args": ["codeocean-mcp-server"],
       "env": {
         "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>",
+        "AGENT_ID": "Cline"
       },
       "alwaysAllow": [],       // optional: list of tools to auto-approve
       "disabled": false        // ensure it’s enabled
@@ -122,7 +125,8 @@ Roo Code’s MCP support is configured globally across all workspaces via a JSON
       "args": ["codeocean-mcp-server"],
       "env": {
         "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>",
+        "AGENT_ID": "Roo Code"
       }
     }
   }
@@ -150,7 +154,8 @@ Cursor stores MCP servers in a JSON file at either ~/.cursor/mcp.json (global) o
       "args": ["codeocean-mcp-server"],
       "env": {
         "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>",
+        "AGENT_ID": "Cursor"
       }
     }
   }
@@ -173,7 +178,8 @@ Windsurf (Cascade) uses mcp_config.json under ~/.codeium/windsurf/ (or via the C
       "args": ["codeocean-mcp-server"],
       "env": {
         "CODEOCEAN_DOMAIN": "https://codeocean.acme.com",
-        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>"
+        "CODEOCEAN_TOKEN": "<YOUR_API_KEY>",
+        "AGENT_ID": "Windsurf"
       }
     }
   }

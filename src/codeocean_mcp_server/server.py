@@ -15,7 +15,8 @@ def main():
             "Environment variables CODEOCEAN_DOMAIN and "
             "CODEOCEAN_TOKEN must be set."
         )
-    client = CodeOcean(domain=domain, token=token)
+    agent_id = os.getenv("AGENT_ID", "AI Agent")
+    client = CodeOcean(domain=domain, token=token, agent_id=agent_id)
 
     mcp = FastMCP(
         name="Code Ocean",
