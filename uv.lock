@@ -353,7 +353,7 @@ wheels = [
 
 [[package]]
 name = "codeocean-mcp-server"
-version = "0.2.0"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "codeocean" },
@@ -373,7 +373,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "codeocean", specifier = ">=0.8.0,<0.9.0" },
-    { name = "mcp", specifier = "==1.12.3" },
+    { name = "mcp", specifier = ">=1.12.0,<1.13.0" },
 ]
 
 [package.metadata.requires-dev]
