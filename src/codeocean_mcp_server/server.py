@@ -20,7 +20,7 @@ def main():
 
     mcp = FastMCP(
         name="Code Ocean",
-        description=(
+        instructions=(
             f"MCP server for Code Ocean: search & run capsules, "
             f"pipelines, and assets using Code Ocean domain {domain}."
         ),
