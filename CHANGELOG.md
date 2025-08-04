@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.4.0 (2025-08-04)
+
+- [#7](https://github.com/codeocean/codeocean-mcp-server/pull/7) fix: pin mcp package dependency
+
 ## 0.3.0 (2025-07-14)
 
 - [#5](https://github.com/codeocean/codeocean-mcp-server/pull/5) feat: Add support for AI agent ID in server configuration
