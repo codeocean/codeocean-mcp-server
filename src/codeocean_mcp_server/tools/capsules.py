@@ -1,5 +1,6 @@
 from codeocean import CodeOcean
 from codeocean.capsule import (
+    AppPanel,
     Capsule,
     CapsuleSearchParams,
     CapsuleSearchResults,
@@ -13,6 +14,7 @@ from codeocean_mcp_server.models import dataclass_to_pydantic
 
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
+AppPanelModel = dataclass_to_pydantic(AppPanel)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
@@ -65,3 +67,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def list_computations(capsule_id: str) -> list[Computation]:
         """List all computations for a capsule."""
         return client.capsules.list_computations(capsule_id)
+
+    @mcp.tool(description=client.capsules.get_capsule_app_panel.__doc__)
+    def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
+        """List all computations for a capsule."""
+        return client.capsules.get_capsule_app_panel(capsule_id, version)
