@@ -12,9 +12,9 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
+AppPanelModel = dataclass_to_pydantic(AppPanel)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
-AppPanelModel = dataclass_to_pydantic(AppPanel)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
