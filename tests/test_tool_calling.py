@@ -346,12 +346,12 @@ test_response = [
     # ==============================================================================================================
     # data assets tests
     # --------------------------------------------------------------
-    # get_data_asset_file_download_url
+    # get_data_asset_file_urls
     {
-        "id": "get_data_asset_file_download_url",
+        "id": "get_data_asset_file_urls",
         "prompt": "get download URL for file '/data/file.txt' in data asset with id: data_asset123",
         "expected": {
-            "name": "get_data_asset_file_download_url",
+            "name": "get_data_asset_file_urls",
             "input": {
                 "data_asset_id": "data_asset123",
                 "file_path": "/data/file.txt",

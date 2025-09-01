@@ -1,7 +1,7 @@
 from codeocean import CodeOcean
 from codeocean.computation import (
     Computation,
-    DownloadFileURL,
+    FileURLs,
     Folder,
     RunParams,
 )
@@ -26,7 +26,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             str(client.computations.run_capsule.__doc__)
             + "Typical workflow: 1) run_capsule() to start execution "
             "2) wait_until_completed() to monitor progress "
-            "3) list_computation_results() and get_result_file_download_url() "
+            "3) list_computation_results() and get_result_file_urls() "
             "to retrieve outputs."
         )
     )
@@ -54,9 +54,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
 
     @mcp.tool(description=(client.computations.get_result_file_download_url.__doc__))
-    def get_result_file_download_url(computation_id: str, file_path: str) -> DownloadFileURL:
+    def get_result_file_url(computation_id: str, file_path: str) -> FileURLs:
         """Get download URL for a specific result file from computation."""
-        return client.computations.get_result_file_download_url(computation_id, file_path)
+        return client.computations.get_result_file_urls(computation_id, file_path)
 
     @mcp.tool(
         description=(
@@ -65,5 +65,5 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     )
     def download_and_read_a_file_from_computation(computation_id: str, file_path: str) -> str:
         """Download a file using the provided URL and return its content."""
-        file_url = client.computations.get_result_file_download_url(computation_id, file_path)
-        return download_and_read_file(file_url.url)
+        file_urls = client.computations.get_result_file_urls(computation_id, file_path)
+        return download_and_read_file(file_urls.download_url)

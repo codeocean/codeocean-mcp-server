@@ -11,7 +11,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  "codeocean>=0.10.0,<0.11.0",
+  "codeocean @ git+https://github.com/codeocean/codeocean-sdk-python.git@version-4-0",
   "mcp>=1.12.0,<1.13.0",
 ]
 license = "MIT"
@@ -43,6 +43,9 @@ exclude = ["/.circleci"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codeocean_mcp_server"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.envs.default.scripts]
 test = "pytest"

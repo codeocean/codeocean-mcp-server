@@ -202,7 +202,7 @@ Windsurf (Cascade) uses mcp_config.json under ~/.codeium/windsurf/ (or via the C
 You can test the MCP server locally during development with [MCP Inspector](https://modelcontextprotocol.io/legacy/tools/inspector):
 
 ```bash
-npx @modelcontextprotocol/inspector uvx --from . codeocean-mcp-server
+npx @modelcontextprotocol/inspector uv tool run codeocean-mcp-server
 ```
 
 This will start a web server where you can:
