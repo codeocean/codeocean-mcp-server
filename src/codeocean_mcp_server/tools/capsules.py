@@ -70,5 +70,5 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(description=client.capsules.get_capsule_app_panel.__doc__)
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
-        """List all computations for a capsule."""
+        """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
