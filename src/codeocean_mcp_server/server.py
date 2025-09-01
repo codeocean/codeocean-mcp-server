@@ -3,7 +3,12 @@ import os
 from codeocean import CodeOcean
 from mcp.server.fastmcp import FastMCP
 
-from codeocean_mcp_server.tools import capsules, computations, data_assets
+from codeocean_mcp_server.tools import (
+    capsules,
+    computations,
+    custom_metadata,
+    data_assets,
+)
 
 
 def main():
@@ -12,8 +17,7 @@ def main():
     token = os.getenv("CODEOCEAN_TOKEN")
     if not domain or not token:
         raise ValueError(
-            "Environment variables CODEOCEAN_DOMAIN and "
-            "CODEOCEAN_TOKEN must be set."
+            "Environment variables CODEOCEAN_DOMAIN and " "CODEOCEAN_TOKEN must be set."
         )
     agent_id = os.getenv("AGENT_ID", "AI Agent")
     client = CodeOcean(domain=domain, token=token, agent_id=agent_id)
@@ -29,6 +33,7 @@ def main():
     capsules.add_tools(mcp, client)
     data_assets.add_tools(mcp, client)
     computations.add_tools(mcp, client)
+    custom_metadata.add_tools(mcp, client)
 
     mcp.run()
 
