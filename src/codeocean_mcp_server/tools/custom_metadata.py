@@ -12,5 +12,5 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(description=client.custom_metadata.get_custom_metadata.__doc__)
     def get_custom_metadata() -> CustomMetadataModel:
-        """Retrieve a specific computation by its unique identifier."""
+        """Retrieve custom metadata."""
         return client.custom_metadata.get_custom_metadata()
