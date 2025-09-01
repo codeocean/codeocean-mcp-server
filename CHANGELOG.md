@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+## 0.5.0 (2025-09-01)
+
+- [#9](https://github.com/codeocean/codeocean-mcp-server/pull/9) feat: Updates for Code Ocean v3.9
+- **Minimum Code Ocean platform version updated to `3.9.0`.** 
+
 ## 0.4.0 (2025-08-04)
 
 - [#7](https://github.com/codeocean/codeocean-mcp-server/pull/7) fix: pin mcp package dependency
@@ -17,3 +22,4 @@ CHANGELOG
 ## 0.1.0 (2025-07-01)
 
 - [#1](https://github.com/codeocean/codeocean-mcp-server/pull/1) Initial version
+- **Minimum Code Ocean platform version updated to `3.6.0`.** 
