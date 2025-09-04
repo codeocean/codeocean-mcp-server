@@ -61,9 +61,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return download_and_read_file(file_urls.download_url)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
-    def list_data_asset_files(data_asset_id: str) -> Folder:
+    def list_data_asset_files(data_asset_id: str, path: str = "") -> Folder:
         """List files in a data asset."""
-        return client.data_assets.list_data_asset_files(data_asset_id)
+        return client.data_assets.list_data_asset_files(data_asset_id, path)
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
