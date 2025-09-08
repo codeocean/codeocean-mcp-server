@@ -2,6 +2,7 @@ from codeocean import CodeOcean
 from codeocean.custom_metadata import CustomMetadata
 from mcp.server.fastmcp import FastMCP
 
+
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add custom_metadata tools to the MCP server."""
 
