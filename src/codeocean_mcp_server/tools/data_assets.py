@@ -47,7 +47,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         )
     )
     def get_data_asset_file_urls(data_asset_id: str, file_path: str) -> FileURLs:
-        """Get a download URL for a specific file in a data asset."""
+        """Get view and download URLs for a specific file in a data asset."""
         return client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
 
     @mcp.tool(

@@ -53,9 +53,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         return client.computations.list_computation_results(computation_id)
 
 
-    @mcp.tool(description=(client.computations.get_result_file_download_url.__doc__))
-    def get_result_file_url(computation_id: str, file_path: str) -> FileURLs:
-        """Get download URL for a specific result file from computation."""
+    @mcp.tool(description=(client.computations.get_result_file_urls.__doc__))
+    def get_result_file_urls(computation_id: str, file_path: str) -> FileURLs:
+        """Get view and download URLs for a specific result file from computation."""
         return client.computations.get_result_file_urls(computation_id, file_path)
 
     @mcp.tool(
