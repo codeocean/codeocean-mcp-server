@@ -338,13 +338,17 @@ wheels = [
 
 [[package]]
 name = "codeocean"
-version = "0.10.0"
-source = { git = "https://github.com/codeocean/codeocean-sdk-python.git?rev=version-4-0#b45f341b54103dc24ec37ea26cf864d195400e0c" }
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backports-strenum", marker = "python_full_version < '3.11'" },
     { name = "dataclasses-json" },
     { name = "requests" },
     { name = "requests-toolbelt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4c/cf/cb84db5bbcd578c6056cb4450b7b2b890bce11e38d73bbe851efc82ed3b7/codeocean-0.11.0.tar.gz", hash = "sha256:327870828acd52d389fa7e886f5afd2939ba44f98042792ceeb71f4e633e5fca", size = 19399, upload-time = "2025-10-07T12:26:14.063Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/d5/7db76b3bccca71b6ede63e941d76cfff3f22018a8c31818978bc8b1ed13a/codeocean-0.11.0-py3-none-any.whl", hash = "sha256:836400084ba433e9474f7b6ecd6337a9b45fb41d0f4d67a2d72d38338d4fbed3", size = 20379, upload-time = "2025-10-07T12:26:15.03Z" },
 ]
 
 [[package]]
@@ -368,7 +372,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "codeocean", git = "https://github.com/codeocean/codeocean-sdk-python.git?rev=version-4-0" },
+    { name = "codeocean", specifier = ">=0.11.0,<0.12.0" },
     { name = "mcp", specifier = ">=1.12.0,<1.13.0" },
 ]
 
