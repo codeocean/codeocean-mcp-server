@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-## 0.5.0 (2025-09-01)
+## 0.6.0 (2025-10-10)
 
 - [#13](https://github.com/codeocean/codeocean-mcp-server/pull/13) feat: Updates for Code Ocean v4.0
 - **Minimum Code Ocean platform version updated to `4.0.0`.** 
