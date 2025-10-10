@@ -7,7 +7,7 @@ from codeocean.data_asset import (
     DataAssetSearchParams,
     DataAssetSearchResults,
     DataAssetUpdateParams,
-    DownloadFileURL,
+    FileURLs,
     Folder,
 )
 from mcp.server.fastmcp import FastMCP
@@ -39,16 +39,16 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.data_assets.get_data_asset_file_download_url.__doc__)
+            str(client.data_assets.get_data_asset_file_urls.__doc__)
             + "Call only when the data asset is already created and in a ready "
             "state. If the asset may not yet be ready, first use "
             "`wait_until_ready` to poll until readiness, then retrieve the "
             "download URL."
         )
     )
-    def get_data_asset_file_download_url(data_asset_id: str, file_path: str) -> DownloadFileURL:
-        """Get a download URL for a specific file in a data asset."""
-        return client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path)
+    def get_data_asset_file_urls(data_asset_id: str, file_path: str) -> FileURLs:
+        """Get view and download URLs for a specific file in a data asset."""
+        return client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
 
     @mcp.tool(
         description=(
@@ -57,13 +57,13 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     )
     def download_and_read_a_file_from_data_asset(data_asset_id: str, file_path: str) -> str:
         """Download a file using the provided URL and return its content."""
-        file_url = client.data_assets.get_data_asset_file_download_url(data_asset_id, file_path)
-        return download_and_read_file(file_url.url)
+        file_urls = client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
+        return download_and_read_file(file_urls.download_url)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
-    def list_data_asset_files(data_asset_id: str) -> Folder:
+    def list_data_asset_files(data_asset_id: str, path: str = "") -> Folder:
         """List files in a data asset."""
-        return client.data_assets.list_data_asset_files(data_asset_id)
+        return client.data_assets.list_data_asset_files(data_asset_id, path)
 
     @mcp.tool(description=client.data_assets.update_metadata.__doc__)
     def update_metadata(
