@@ -36,6 +36,20 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
+            str(client.capsules.search_pipelines.__doc__)
+            + "Use only for pipeline searches. "
+            "Provide only the minimal required parameters (e.g. limit=10); "
+            "do not include optional params "
+            "like sort_by or sort_order unless requested."
+        )
+    )
+    def search_pipelines(search_params: CapsuleSearchParamsModel) -> CapsuleSearchResults:
+        """Search for pipelines matching specified criteria."""
+        params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
+        return client.capsules.search_pipelines(params)
+
+    @mcp.tool(
+        description=(
             str(client.capsules.attach_data_assets.__doc__)
             + "Accepts a list of parameter objects (e.g. [{'id': '...'}]), "
             "not just a list of IDs."
