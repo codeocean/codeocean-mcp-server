@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.7.0 (2025-10-21)
+
+- [#15](https://github.com/codeocean/codeocean-mcp-server/pull/15) feat: update codeocean sdk and search_pipelines tool
+
 ## 0.6.0 (2025-10-10)
 
 - [#13](https://github.com/codeocean/codeocean-mcp-server/pull/13) feat: Updates for Code Ocean v4.0
