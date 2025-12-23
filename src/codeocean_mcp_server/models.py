@@ -8,9 +8,6 @@ from pydantic import BaseModel, Field, create_model
 def _get_field_info(field: DataclassField) -> Any:
     """Get Pydantic field info from dataclass field.
 
-    Handles the conversion of dataclass field defaults to Pydantic field info,
-    properly handling MISSING values to avoid JSON serialization warnings.
-
     Args:
         field: Dataclass field to convert
 
@@ -37,9 +34,7 @@ def _get_field_info(field: DataclassField) -> Any:
         return default
 
 
-def dataclass_to_pydantic(
-    data_class: Type[Any], cache: dict[Type[Any], Type[BaseModel]] = None
-) -> Type[BaseModel]:
+def dataclass_to_pydantic(data_class: Type[Any], cache: dict[Type[Any], Type[BaseModel]] = None) -> Type[BaseModel]:
     """Convert a dataclass to Pydantic model.
 
     Recursively convert a frozen @dataclass (and nested dataclasses)
@@ -50,17 +45,11 @@ def dataclass_to_pydantic(
         cache = {}
     if data_class in cache:
         return cache[data_class]
-    assert is_dataclass(data_class), (
-        f"{data_class.__name__} is not a dataclass"
-    )
+    assert is_dataclass(data_class), f"{data_class.__name__} is not a dataclass"
 
     # 1) Resolve all annotations to real types (no strings)
-    module_ns = vars(
-        __import__(data_class.__module__, fromlist=["*"])
-    )
-    type_hints = get_type_hints(
-        data_class, globalns=module_ns, localns=module_ns
-    )
+    module_ns = vars(__import__(data_class.__module__, fromlist=["*"]))
+    type_hints = get_type_hints(data_class, globalns=module_ns, localns=module_ns)
 
     definitions: dict[str, tuple[type, Any]] = {}
     for field in fields(data_class):
@@ -80,18 +69,13 @@ def dataclass_to_pydantic(
             nested_model = dataclass_to_pydantic(args[0], cache)
             field_type = List[nested_model]
 
-        # 4) Get Pydantic field info (handles MISSING properly)
+        # 4) Get Pydantic field info
         field_info = _get_field_info(field)
 
         definitions[field.name] = (field_type, field_info)
 
     # 5) Dynamically create the Pydantic model
-    model = create_model(
-        f"{data_class.__name__}Model",
-        __base__=BaseModel,
-        __doc__=data_class.__doc__,
-        **definitions
-    )
+    model = create_model(f"{data_class.__name__}Model", __base__=BaseModel, __doc__=data_class.__doc__, **definitions)
 
     # 6) Override the schema generation to include description from docstring
     if data_class.__doc__:
