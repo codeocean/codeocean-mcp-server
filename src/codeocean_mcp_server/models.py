@@ -1,7 +1,38 @@
-from dataclasses import MISSING, fields, is_dataclass
+from dataclasses import MISSING, Field as DataclassField, fields, is_dataclass
 from typing import Any, List, Type, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel, Field, create_model
+
+
+def _get_field_info(field: DataclassField) -> Any:
+    """Get Pydantic field info from dataclass field.
+
+    Handles the conversion of dataclass field defaults to Pydantic field info,
+    properly handling MISSING values to avoid JSON serialization warnings.
+
+    Args:
+        field: Dataclass field to convert
+
+    Returns:
+        Pydantic field info (Field, Ellipsis, or default value)
+    """
+    default = field.default
+    has_description = field.metadata and "description" in field.metadata
+
+    if has_description:
+        description = field.metadata["description"]
+        if default is MISSING:
+            # Required field with description
+            return Field(description=description)
+        else:
+            # Optional field with default and description
+            return Field(default=default, description=description)
+    elif default is MISSING:
+        # Required field without description
+        return ...
+    else:
+        # Optional field with default but no description
+        return default
 
 
 def dataclass_to_pydantic(
@@ -48,24 +79,8 @@ def dataclass_to_pydantic(
             nested_model = dataclass_to_pydantic(args[0], cache)
             field_type = List[nested_model]
 
-        # 4) Handle field with description from metadata
-        # For required fields (default is MISSING), use Pydantic's ... (Ellipsis)
-        # to avoid passing non-JSON-serializable dataclasses.MISSING value
-        if field.metadata and "description" in field.metadata:
-            if default is MISSING:
-                # Required field with description
-                field_info = Field(description=field.metadata["description"])
-            else:
-                # Optional field with default and description
-                field_info = Field(
-                    default=default, description=field.metadata["description"]
-                )
-        elif default is MISSING:
-            # Required field without description
-            field_info = ...
-        else:
-            # Optional field with default but no description
-            field_info = default
+        # 4) Get Pydantic field info (handles MISSING properly)
+        field_info = _get_field_info(field)
 
         definitions[field.name] = (field_type, field_info)
 
