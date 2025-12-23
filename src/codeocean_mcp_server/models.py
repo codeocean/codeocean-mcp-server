@@ -1,4 +1,4 @@
-from dataclasses import fields, is_dataclass
+from dataclasses import MISSING, fields, is_dataclass
 from typing import Any, List, Type, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel, Field, create_model
@@ -49,12 +49,23 @@ def dataclass_to_pydantic(
             field_type = List[nested_model]
 
         # 4) Handle field with description from metadata
-        field_info = default
+        # For required fields (default is MISSING), use Pydantic's ... (Ellipsis)
+        # to avoid passing non-JSON-serializable dataclasses.MISSING value
         if field.metadata and "description" in field.metadata:
-            # Create a Pydantic Field with description
-            field_info = Field(
-                default=default, description=field.metadata["description"]
-            )
+            if default is MISSING:
+                # Required field with description
+                field_info = Field(description=field.metadata["description"])
+            else:
+                # Optional field with default and description
+                field_info = Field(
+                    default=default, description=field.metadata["description"]
+                )
+        elif default is MISSING:
+            # Required field without description
+            field_info = ...
+        else:
+            # Optional field with default but no description
+            field_info = default
 
         definitions[field.name] = (field_type, field_info)
 
