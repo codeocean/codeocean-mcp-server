@@ -1,4 +1,5 @@
-from dataclasses import MISSING, Field as DataclassField, fields, is_dataclass
+from dataclasses import MISSING, fields, is_dataclass
+from dataclasses import Field as DataclassField
 from typing import Any, List, Type, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel, Field, create_model
@@ -15,6 +16,7 @@ def _get_field_info(field: DataclassField) -> Any:
 
     Returns:
         Pydantic field info (Field, Ellipsis, or default value)
+
     """
     default = field.default
     has_description = field.metadata and "description" in field.metadata
@@ -64,7 +66,6 @@ def dataclass_to_pydantic(
     for field in fields(data_class):
         # Use the evaluated hint if available, else the raw annotation
         typ = type_hints.get(field.name, field.type)
-        default = field.default
         field_type = typ
         origin = get_origin(typ)
         args = get_args(typ)
