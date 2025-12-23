@@ -1,7 +1,12 @@
 CHANGELOG
 =========
 
-## 0.7.0 (2025-10-21)
+## 0.7.1 (2024-12-23)
+
+- [#18](https://github.com/codeocean/codeocean-mcp-server/pull/18) chore: ruff format and dep update
+- [#17](https://github.com/codeocean/codeocean-mcp-server/pull/17) fix: Handle dataclasses.MISSING properly in dataclass_to_pydantic
+
+## 0.7.0 (2024-10-21)
 
 - [#15](https://github.com/codeocean/codeocean-mcp-server/pull/15) feat: update codeocean sdk and search_pipelines tool
 
