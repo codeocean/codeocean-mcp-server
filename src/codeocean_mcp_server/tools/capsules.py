@@ -22,8 +22,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.capsules.search_capsules.__doc__)
-            + "Use only for capsule searches. "
+            str(client.capsules.search_capsules.__doc__) + "Use only for capsule searches. "
             "Provide only the minimal required parameters (e.g. limit=10); "
             "do not include optional params "
             "like sort_by or sort_order unless requested."
@@ -36,8 +35,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.capsules.search_pipelines.__doc__)
-            + "Use only for pipeline searches. "
+            str(client.capsules.search_pipelines.__doc__) + "Use only for pipeline searches. "
             "Provide only the minimal required parameters (e.g. limit=10); "
             "do not include optional params "
             "like sort_by or sort_order unless requested."
@@ -60,16 +58,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         attach_params: list[DataAssetAttachParamsModel],
     ) -> list[DataAssetAttachResults]:
         """Attach data assets to a capsule."""
-        params = [
-            DataAssetAttachParams(**p.model_dump(exclude_none=True))
-            for p in attach_params
-        ]
+        params = [DataAssetAttachParams(**p.model_dump(exclude_none=True)) for p in attach_params]
         return client.capsules.attach_data_assets(capsule_id, params)
 
     @mcp.tool(
         description=(
-            str(client.capsules.get_capsule.__doc__)
-            + "Use only to fetch metadata for a known capsule ID. "
+            str(client.capsules.get_capsule.__doc__) + "Use only to fetch metadata for a known capsule ID. "
             "Do not use for searching."
         )
     )

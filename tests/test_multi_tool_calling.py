@@ -36,7 +36,7 @@ def check_diff(expected_response: dict, response: dict) -> None:
 
 
 def test_prompt_generates_correct_tool_usage_sequence(
-    agentic_prompt_chain:dict = agentic_prompt_chain,
+    agentic_prompt_chain: dict = agentic_prompt_chain,
 ):
     """Test that the prompt generates the expected sequence of tool calls in the correct order."""
     responses = []

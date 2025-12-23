@@ -67,9 +67,7 @@ test_response = [
         "prompt": "get capsules - filter capsules where tags = 'brain'",
         "expected": {
             "name": "search_capsules",
-            "input": {
-                "search_params": {"filters": [{"key": "tags", "value": "brain"}]}
-            },
+            "input": {"search_params": {"filters": [{"key": "tags", "value": "brain"}]}},
         },
     },
     # --------------------------------------------------------------
@@ -193,9 +191,7 @@ test_response = [
         "prompt": "get data assets - filter data assets where tags = 'genomics'",
         "expected": {
             "name": "search_data_assets",
-            "input": {
-                "search_params": {"filters": [{"key": "tags", "value": "genomics"}]}
-            },
+            "input": {"search_params": {"filters": [{"key": "tags", "value": "genomics"}]}},
         },
     },
     {
@@ -219,10 +215,7 @@ test_response = [
     },
     {
         "id": "search_data_assets_complex_external_ml",
-        "prompt": (
-            "find 15 external data assets that, "
-            "sorted by size descending, query for 'machine learning'"
-        ),
+        "prompt": ("find 15 external data assets that, sorted by size descending, query for 'machine learning'"),
         "expected": {
             "name": "search_data_assets",
             "input": {
@@ -407,9 +400,7 @@ test_response = [
             "name": "update_metadata",
             "input": {
                 "data_asset_id": "data_asset102",
-                "update_params": {
-                    "custom_metadata": {"key1": "value1", "key2": "value2"}
-                },
+                "update_params": {"custom_metadata": {"key1": "value1", "key2": "value2"}},
             },
         },
     },

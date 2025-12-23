@@ -16,17 +16,14 @@ def main():
     domain = os.getenv("CODEOCEAN_DOMAIN")
     token = os.getenv("CODEOCEAN_TOKEN")
     if not domain or not token:
-        raise ValueError(
-            "Environment variables CODEOCEAN_DOMAIN and " "CODEOCEAN_TOKEN must be set."
-        )
+        raise ValueError("Environment variables CODEOCEAN_DOMAIN and CODEOCEAN_TOKEN must be set.")
     agent_id = os.getenv("AGENT_ID", "AI Agent")
     client = CodeOcean(domain=domain, token=token, agent_id=agent_id)
 
     mcp = FastMCP(
         name="Code Ocean",
         instructions=(
-            f"MCP server for Code Ocean: search & run capsules, "
-            f"pipelines, and assets using Code Ocean domain {domain}."
+            f"MCP server for Code Ocean: search & run capsules, pipelines, and assets using Code Ocean domain {domain}."
         ),
     )
 
