@@ -11,8 +11,6 @@ from mcp.types import Tool
 _NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 
-
-
 def prune_schema(schema: Dict[str, Any]) -> Dict[str, Any]:
     """Recursively prune forbidden keys from a schema."""
     forbidden_keys = {"anyOf", "$schema", "$ref"}
@@ -47,9 +45,7 @@ def validate_schema(schema: Dict[str, Any]) -> None:
     Draft202012Validator.check_schema(schema)
 
 
-def convert_tool_format(
-    tools: List[Tool], model: str
-) -> Dict[str, List[Dict[str, Any]]]:
+def convert_tool_format(tools: List[Tool], model: str) -> Dict[str, List[Dict[str, Any]]]:
     """Convert MCP tools into a Bedrock Draft 2020-12-compliant toolConfig."""
     # For other models, we need to convert tools to the Bedrock format
     converted = []

@@ -18,12 +18,12 @@ license = "MIT"
 
 [dependency-groups]
 dev = [
-  "boto3>=1.39.0",
-  "deepdiff>=8.5.0",
-  "hatch>=1.14.1",
+  "boto3>=1.42.16",
+  "deepdiff>=8.6.1",
+  "hatch>=1.16.2",
   "mcp-python-client>=0.1.9",
-  "pytest>=8.4.1",
-  "ruff>=0.12.1",
+  "pytest>=9.0.2",
+  "ruff>=0.14.10",
 ]
 
 [project.urls]
@@ -58,7 +58,8 @@ line-length = 120
 
 [tool.ruff.lint]
 select = ["C", "D", "E", "F", "I", "W"]
-ignore = ["D100", "D104"]
+ignore = ["D100", "D104", "D203", "D213"]
+
 
 [tool.pytest.ini_options]
 filterwarnings = [
