@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.7.2 (2025-12-27)
+
+- [#20](https://github.com/codeocean/codeocean-mcp-server/pull/20) feat: custom log formatting
+
 ## 0.7.1 (2024-12-23)
 
 - [#18](https://github.com/codeocean/codeocean-mcp-server/pull/18) chore: ruff format and dep update
