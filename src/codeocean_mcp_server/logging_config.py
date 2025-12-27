@@ -21,8 +21,10 @@ def configure_logging() -> None:
                    - "%(levelname)s: %(message)s"
                    - "[%(name)s] %(message)s"
 
-    Raises:
-        ValueError: If LOG_FORMAT contains an invalid format string
+    Note:
+        Invalid format strings will cause errors when log records are formatted,
+        not during initialization. This typically results in ValueError, KeyError,
+        or AttributeError being raised when logging occurs.
 
     """
     log_format = os.getenv("LOG_FORMAT", "").strip()
