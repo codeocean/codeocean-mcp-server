@@ -18,7 +18,7 @@ license = "MIT"
 
 [dependency-groups]
 dev = [
-  "boto3>=1.42.16",
+  "boto3>=1.42.17",
   "deepdiff>=8.6.1",
   "hatch>=1.16.2",
   "mcp-python-client>=0.1.9",
