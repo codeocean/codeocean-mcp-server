@@ -15,13 +15,15 @@ def configure_logging() -> None:
 
     Environment variables:
         LOG_FORMAT: Python logging format string (optional)
-                   Examples:
+
+    Examples:
                    - "%(asctime)s agent %(levelname)s [%(name)s] %(message)s"
                    - "%(levelname)s: %(message)s"
                    - "[%(name)s] %(message)s"
 
     Raises:
         ValueError: If LOG_FORMAT contains an invalid format string
+
     """
     log_format = os.getenv("LOG_FORMAT", "").strip()
 
