@@ -3,6 +3,7 @@ import os
 from codeocean import CodeOcean
 from mcp.server.fastmcp import FastMCP
 
+from codeocean_mcp_server.logging_config import configure_logging
 from codeocean_mcp_server.tools import (
     capsules,
     computations,
@@ -13,6 +14,7 @@ from codeocean_mcp_server.tools import (
 
 def main():
     """Run the MCP server."""
+    configure_logging()
     domain = os.getenv("CODEOCEAN_DOMAIN")
     token = os.getenv("CODEOCEAN_TOKEN")
     if not domain or not token:
