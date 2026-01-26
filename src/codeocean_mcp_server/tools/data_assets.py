@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 from codeocean import CodeOcean
 from codeocean.data_asset import (
@@ -14,6 +15,7 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
+from codeocean_mcp_server.token_efficient import CompactTableResult, to_compact_table
 
 DataAssetModel = dataclass_to_pydantic(DataAsset)
 DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
@@ -21,21 +23,40 @@ DataAssetSearchParamsModel = dataclass_to_pydantic(DataAssetSearchParams)
 DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 
 
+DATA_ASSET_COMPACT_DOC = """
+Returns compact table by default: {cols: [id, name, description, tags], rows, meta}.
+Set response_view='full' for complete response.
+"""
+
+
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
-    @mcp.tool(
-        description=(
-            str(client.data_assets.search_data_assets.__doc__)
-            + "Search for data assets (external or internal). You may filter by "
-            "fields such as `origin`, tags, or other criteria supported by the "
-            "SDK."
-        )
-    )
-    def search_data_assets(search_params: DataAssetSearchParamsModel) -> DataAssetSearchResults:
+    @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + DATA_ASSET_COMPACT_DOC))
+    def search_data_assets(
+        search_params: DataAssetSearchParamsModel,
+        response_view: Literal["compact", "full"] = "compact",
+    ) -> DataAssetSearchResults | CompactTableResult:
         """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
-        return client.data_assets.search_data_assets(params)
+        results = client.data_assets.search_data_assets(params)
+
+        if response_view == "full":
+            return results
+
+        return to_compact_table(
+            results=results.results,
+            has_more=results.has_more,
+            next_token=getattr(results, "next_token", None),
+            result_type="data_asset",
+        )
+
+    @mcp.tool(
+        description=("Get full details for a data asset by ID. Use after compact search to retrieve complete metadata.")
+    )
+    def get_data_asset(data_asset_id: str) -> DataAsset:
+        """Retrieve a data asset by its ID."""
+        return client.data_assets.get_data_asset(data_asset_id)
 
     @mcp.tool(
         description=(
