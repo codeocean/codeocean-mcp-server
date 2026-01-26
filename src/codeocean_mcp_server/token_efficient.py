@@ -34,26 +34,21 @@ def truncate_description(description: Optional[str], max_length: int = MAX_DESCR
     if not description:
         return None
 
-    # Light whitespace normalization: collapse 3+ consecutive whitespace to single space
+    # Light whitespace normalization: collapse 3+ consecutive whitespace to single space.
     normalized = re.sub(r"\s{3,}", " ", description).strip()
-
-    # After normalization, check if empty
     if not normalized:
         return None
 
     if len(normalized) <= max_length:
         return normalized
 
-    # Reserve space for suffix
     truncate_at = max_length - len(TRUNCATION_SUFFIX)
+    if truncate_at <= 0:
+        return TRUNCATION_SUFFIX[:max_length]
 
-    # Try word boundary truncation
     last_space = normalized.rfind(" ", 0, truncate_at)
-
-    if last_space > max_length // 2:  # Found reasonable break point
-        return normalized[:last_space].rstrip() + TRUNCATION_SUFFIX
-    else:  # No good break point, hard cut
-        return normalized[:truncate_at].rstrip() + TRUNCATION_SUFFIX
+    cut_at = last_space if last_space > max_length // 2 else truncate_at
+    return normalized[:cut_at].rstrip() + TRUNCATION_SUFFIX
 
 
 def limit_tags(tags: Optional[list[str]], max_count: int = MAX_TAGS_COUNT) -> list[str]:
@@ -62,30 +57,29 @@ def limit_tags(tags: Optional[list[str]], max_count: int = MAX_TAGS_COUNT) -> li
         return []
 
     if len(tags) <= max_count:
-        return list(tags)  # Return a copy
+        return list(tags)
 
-    # Take first (max_count - 1) + marker to indicate more exist
     return list(tags[: max_count - 1]) + [TAGS_TRUNCATION_MARKER]
+
+
+def get_field(item: Any, name: str, default: Any = "") -> Any:
+    """Get field from item, supporting both dicts and objects."""
+    if isinstance(item, dict):
+        return item.get(name, default)
+    return getattr(item, name, default)
 
 
 def extract_compact_row(item: Any, include_slug: bool = False) -> list[Any]:
     """Extract compact row data from a search result item."""
-
-    def get_field(name: str, default: Any = "") -> Any:
-        if isinstance(item, dict):
-            return item.get(name, default)
-        return getattr(item, name, default)
-
-    item_id = get_field("id", "")
-    name = get_field("name", "")
-    description = truncate_description(get_field("description", None))
-    tags = limit_tags(get_field("tags", None))
+    item_id = get_field(item, "id", "")
+    name = get_field(item, "name", "")
+    description = truncate_description(get_field(item, "description", None))
+    tags = limit_tags(get_field(item, "tags", None))
 
     if include_slug:
-        slug = get_field("slug", "")
+        slug = get_field(item, "slug", "")
         return [item_id, name, slug, description, tags]
-    else:
-        return [item_id, name, description, tags]
+    return [item_id, name, description, tags]
 
 
 def to_compact_table(
