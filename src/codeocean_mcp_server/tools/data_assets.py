@@ -26,6 +26,7 @@ DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 DATA_ASSET_COMPACT_DOC = """
 Returns compact table by default: {cols: [id, name, description, tags], rows, meta}.
 Set response_view='full' for complete response.
+Use get_data_asset(id) if full details needed after a compact search.
 """
 
 
