@@ -1,3 +1,4 @@
+import pytest
 from bedrock_call import call_bedrock
 from deepdiff import DeepDiff
 from mcp_client import get_tools
@@ -35,6 +36,7 @@ def check_diff(expected_response: dict, response: dict) -> None:
     assert not diff, f"tool_usage diverges from expected:\n\n-----\n{diff!r}\n------"
 
 
+@pytest.mark.integration
 def test_prompt_generates_correct_tool_usage_sequence(
     agentic_prompt_chain: dict = agentic_prompt_chain,
 ):

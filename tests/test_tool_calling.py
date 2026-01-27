@@ -438,6 +438,7 @@ test_cases = [(test["prompt"], test["expected"]) for test in test_response]
 ids = [test["id"] for test in test_response]
 
 
+@pytest.mark.integration
 @pytest.mark.parametrize("prompt,expected_response", test_cases, ids=ids)
 def test_prompt_generating_the_right_tool_usage(prompt: str, expected_response: dict):
     """Test that the prompt generates the expected tool usage."""

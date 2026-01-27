@@ -10,57 +10,35 @@ from codeocean.capsule import (
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
-from codeocean_mcp_server.token_efficient import CompactCapsuleResult, to_compact_result
+from codeocean_mcp_server.search import CapsuleSearchResults
 
 AppPanelModel = dataclass_to_pydantic(AppPanel)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
-CAPSULE_COMPACT_DOC = """
-Returns compact results: {items: [{id, n, s, d, t}], meta}.
-Fields: id=id, n=name, s=slug, d=description (truncated), t=tags (limited).
-Set include_field_names=true to add meta.field_names with full labels.
-Use get_capsule(id) if full details needed.
-"""
-
-
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
-    @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + CAPSULE_COMPACT_DOC))
+    @mcp.tool(description=((client.capsules.search_capsules.__doc__ or "") + (CapsuleSearchResults.__doc__ or "")))
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
         include_field_names: bool = False,
-    ) -> CompactCapsuleResult:
+    ) -> CapsuleSearchResults:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.capsules.search_capsules(params)
+        return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
-        return to_compact_result(
-            results=results.results,
-            has_more=results.has_more,
-            next_token=getattr(results, "next_token", None),
-            result_type="capsule",
-            include_field_names=include_field_names,
-        )
-
-    @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + CAPSULE_COMPACT_DOC))
+    @mcp.tool(description=((client.capsules.search_pipelines.__doc__ or "") + (CapsuleSearchResults.__doc__ or "")))
     def search_pipelines(
         search_params: CapsuleSearchParamsModel,
         include_field_names: bool = False,
-    ) -> CompactCapsuleResult:
+    ) -> CapsuleSearchResults:
         """Search for pipelines matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.capsules.search_pipelines(params)
-
-        return to_compact_result(
-            results=results.results,
-            has_more=results.has_more,
-            next_token=getattr(results, "next_token", None),
-            result_type="pipeline",
-            include_field_names=include_field_names,
-        )
+        return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
     @mcp.tool(
         description=(

@@ -13,7 +13,7 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
-from codeocean_mcp_server.token_efficient import CompactDataAssetResult, to_compact_result
+from codeocean_mcp_server.search import DataAssetSearchResults
 
 DataAssetModel = dataclass_to_pydantic(DataAsset)
 DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
@@ -21,33 +21,20 @@ DataAssetSearchParamsModel = dataclass_to_pydantic(DataAssetSearchParams)
 DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 
 
-DATA_ASSET_COMPACT_DOC = """
-Returns compact results: {items: [{id, n, d, t}], meta}.
-Fields: id=id, n=name, d=description (truncated), t=tags (limited).
-Set include_field_names=true to add meta.field_names with full labels.
-Use get_data_asset(id) if full details needed after a compact search.
-"""
-
-
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
-    @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + DATA_ASSET_COMPACT_DOC))
+    @mcp.tool(
+        description=((client.data_assets.search_data_assets.__doc__ or "") + (DataAssetSearchResults.__doc__ or ""))
+    )
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
         include_field_names: bool = False,
-    ) -> CompactDataAssetResult:
+    ) -> DataAssetSearchResults:
         """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.data_assets.search_data_assets(params)
-
-        return to_compact_result(
-            results=results.results,
-            has_more=results.has_more,
-            next_token=getattr(results, "next_token", None),
-            result_type="data_asset",
-            include_field_names=include_field_names,
-        )
+        return DataAssetSearchResults.from_sdk_results(results, include_field_names)
 
     @mcp.tool(
         description=("Get full details for a data asset by ID. Use after compact search to retrieve complete metadata.")
@@ -58,7 +45,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.data_assets.get_data_asset_file_urls.__doc__)
+            (client.data_assets.get_data_asset_file_urls.__doc__ or "")
             + "Call only when the data asset is already created and in a ready "
             "state. If the asset may not yet be ready, first use "
             "`wait_until_ready` to poll until readiness, then retrieve the "
@@ -91,7 +78,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.data_assets.wait_until_ready.__doc__)
+            (client.data_assets.wait_until_ready.__doc__ or "")
             + "Poll until the specified data asset becomes ready before "
             "performing further operations (e.g., downloading files). You can "
             "set `polling_interval` and optional `timeout`."
@@ -111,7 +98,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.data_assets.create_data_asset.__doc__)
+            (client.data_assets.create_data_asset.__doc__ or "")
             + f"You can link to the created data assets with the 'data_asset_id' "
             f"with the pattern: {os.getenv('CODEOCEAN_DOMAIN', 'unknown')} with /data-assets/<data_asset_id>."
         )
