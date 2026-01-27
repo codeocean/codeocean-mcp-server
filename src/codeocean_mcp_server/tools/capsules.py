@@ -1,11 +1,8 @@
-from typing import Literal
-
 from codeocean import CodeOcean
 from codeocean.capsule import (
     AppPanel,
     Capsule,
     CapsuleSearchParams,
-    CapsuleSearchResults,
     Computation,
     DataAssetAttachParams,
     DataAssetAttachResults,
@@ -13,7 +10,7 @@ from codeocean.capsule import (
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
-from codeocean_mcp_server.token_efficient import CompactTableResult, to_compact_table
+from codeocean_mcp_server.token_efficient import CompactCapsuleResult, to_compact_result
 
 AppPanelModel = dataclass_to_pydantic(AppPanel)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
@@ -21,8 +18,8 @@ DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
 CAPSULE_COMPACT_DOC = """
-Returns compact table by default: {cols: [id, name, slug, description, tags], rows, meta}.
-Set response_view='full' for complete response. Use get_capsule(id) if full details needed.
+Returns compact results: {items: [{id, n, s, d, t}], meta}.
+Use get_capsule(id) if full details needed.
 """
 
 
@@ -32,16 +29,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + CAPSULE_COMPACT_DOC))
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
-        response_view: Literal["compact", "full"] = "compact",
-    ) -> CapsuleSearchResults | CompactTableResult:
+    ) -> CompactCapsuleResult:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.capsules.search_capsules(params)
 
-        if response_view == "full":
-            return results
-
-        return to_compact_table(
+        return to_compact_result(
             results=results.results,
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),
@@ -51,16 +44,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + CAPSULE_COMPACT_DOC))
     def search_pipelines(
         search_params: CapsuleSearchParamsModel,
-        response_view: Literal["compact", "full"] = "compact",
-    ) -> CapsuleSearchResults | CompactTableResult:
+    ) -> CompactCapsuleResult:
         """Search for pipelines matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.capsules.search_pipelines(params)
 
-        if response_view == "full":
-            return results
-
-        return to_compact_table(
+        return to_compact_result(
             results=results.results,
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),

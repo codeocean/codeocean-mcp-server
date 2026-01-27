@@ -1,12 +1,10 @@
 import os
-from typing import Literal
 
 from codeocean import CodeOcean
 from codeocean.data_asset import (
     DataAsset,
     DataAssetParams,
     DataAssetSearchParams,
-    DataAssetSearchResults,
     DataAssetUpdateParams,
     FileURLs,
     Folder,
@@ -15,7 +13,7 @@ from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
-from codeocean_mcp_server.token_efficient import CompactTableResult, to_compact_table
+from codeocean_mcp_server.token_efficient import CompactDataAssetResult, to_compact_result
 
 DataAssetModel = dataclass_to_pydantic(DataAsset)
 DataAssetParamsModel = dataclass_to_pydantic(DataAssetParams)
@@ -24,8 +22,7 @@ DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 
 
 DATA_ASSET_COMPACT_DOC = """
-Returns compact table by default: {cols: [id, name, description, tags], rows, meta}.
-Set response_view='full' for complete response.
+Returns compact results: {items: [{id, n, d, t}], meta}.
 Use get_data_asset(id) if full details needed after a compact search.
 """
 
@@ -36,16 +33,12 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + DATA_ASSET_COMPACT_DOC))
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
-        response_view: Literal["compact", "full"] = "compact",
-    ) -> DataAssetSearchResults | CompactTableResult:
+    ) -> CompactDataAssetResult:
         """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
         results = client.data_assets.search_data_assets(params)
 
-        if response_view == "full":
-            return results
-
-        return to_compact_table(
+        return to_compact_result(
             results=results.results,
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),

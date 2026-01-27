@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -529,7 +529,7 @@ wheels = [
 
 [[package]]
 name = "codeocean-mcp-server"
-version = "0.7.1"
+version = "0.7.2"
 source = { editable = "." }
 dependencies = [
     { name = "codeocean" },
@@ -554,7 +554,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "boto3", specifier = ">=1.42.16" },
+    { name = "boto3", specifier = ">=1.42.17" },
     { name = "deepdiff", specifier = ">=8.6.1" },
     { name = "hatch", specifier = ">=1.16.2" },
     { name = "mcp-python-client", specifier = ">=0.1.9" },

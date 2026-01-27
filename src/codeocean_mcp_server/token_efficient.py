@@ -8,8 +8,6 @@ MAX_DESCRIPTION_LENGTH = 200
 MAX_TAGS_COUNT = 10
 TRUNCATION_SUFFIX = "...(more)"
 TAGS_TRUNCATION_MARKER = "..more.."
-CAPSULE_COLUMNS = ["id", "name", "slug", "description", "tags"]
-DATA_ASSET_COLUMNS = ["id", "name", "description", "tags"]
 
 
 class CompactSearchMeta(BaseModel):
@@ -21,11 +19,36 @@ class CompactSearchMeta(BaseModel):
     result_type: str  # "capsule", "pipeline", or "data_asset"
 
 
-class CompactTableResult(BaseModel):
-    """Token-efficient table format for search results."""
+class CompactCapsuleItem(BaseModel):
+    """Compact capsule/pipeline item (id kept, other fields shortened)."""
 
-    cols: list[str]
-    rows: list[list[Any]]
+    id: str
+    n: str
+    s: str
+    d: Optional[str] = None
+    t: list[str]
+
+
+class CompactDataAssetItem(BaseModel):
+    """Compact data asset item (id kept, other fields shortened)."""
+
+    id: str
+    n: str
+    d: Optional[str] = None
+    t: list[str]
+
+
+class CompactCapsuleResult(BaseModel):
+    """Compact search result for capsules/pipelines."""
+
+    items: list[CompactCapsuleItem]
+    meta: CompactSearchMeta
+
+
+class CompactDataAssetResult(BaseModel):
+    """Compact search result for data assets."""
+
+    items: list[CompactDataAssetItem]
     meta: CompactSearchMeta
 
 
@@ -69,8 +92,8 @@ def get_field(item: Any, name: str, default: Any = "") -> Any:
     return getattr(item, name, default)
 
 
-def extract_compact_row(item: Any, include_slug: bool = False) -> list[Any]:
-    """Extract compact row data from a search result item."""
+def extract_compact_item(item: Any, include_slug: bool = False) -> dict[str, Any]:
+    """Extract compact item data from a search result item."""
     item_id = get_field(item, "id", "")
     name = get_field(item, "name", "")
     description = truncate_description(get_field(item, "description", None))
@@ -78,29 +101,26 @@ def extract_compact_row(item: Any, include_slug: bool = False) -> list[Any]:
 
     if include_slug:
         slug = get_field(item, "slug", "")
-        return [item_id, name, slug, description, tags]
-    return [item_id, name, description, tags]
+        return {"id": item_id, "n": name, "s": slug, "d": description, "t": tags}
+    return {"id": item_id, "n": name, "d": description, "t": tags}
 
 
-def to_compact_table(
+def to_compact_result(
     results: list[Any],
     has_more: bool,
     next_token: Optional[str],
     result_type: str,
-) -> CompactTableResult:
-    """Convert search results to compact table format."""
+) -> CompactCapsuleResult | CompactDataAssetResult:
+    """Convert search results to compact object format."""
     include_slug = result_type in ("capsule", "pipeline")
-    cols = CAPSULE_COLUMNS if include_slug else DATA_ASSET_COLUMNS
-
-    rows = [extract_compact_row(item, include_slug=include_slug) for item in results]
-
-    return CompactTableResult(
-        cols=cols,
-        rows=rows,
-        meta=CompactSearchMeta(
-            has_more=has_more,
-            next_token=next_token,
-            total_returned=len(rows),
-            result_type=result_type,
-        ),
+    items = [extract_compact_item(item, include_slug=include_slug) for item in results]
+    meta = CompactSearchMeta(
+        has_more=has_more,
+        next_token=next_token,
+        total_returned=len(items),
+        result_type=result_type,
     )
+
+    if include_slug:
+        return CompactCapsuleResult(items=items, meta=meta)
+    return CompactDataAssetResult(items=items, meta=meta)
