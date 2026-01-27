@@ -23,6 +23,8 @@ DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 
 DATA_ASSET_COMPACT_DOC = """
 Returns compact results: {items: [{id, n, d, t}], meta}.
+Fields: id=id, n=name, d=description (truncated), t=tags (limited).
+Set include_field_names=true to add meta.field_names with full labels.
 Use get_data_asset(id) if full details needed after a compact search.
 """
 
@@ -33,6 +35,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + DATA_ASSET_COMPACT_DOC))
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
+        include_field_names: bool = False,
     ) -> CompactDataAssetResult:
         """Retrieve data assets matching search criteria for datasets."""
         params = DataAssetSearchParams(**search_params.model_dump(exclude_none=True))
@@ -43,6 +46,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),
             result_type="data_asset",
+            include_field_names=include_field_names,
         )
 
     @mcp.tool(

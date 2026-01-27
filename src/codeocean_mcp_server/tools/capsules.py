@@ -19,6 +19,8 @@ DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 CAPSULE_COMPACT_DOC = """
 Returns compact results: {items: [{id, n, s, d, t}], meta}.
+Fields: id=id, n=name, s=slug, d=description (truncated), t=tags (limited).
+Set include_field_names=true to add meta.field_names with full labels.
 Use get_capsule(id) if full details needed.
 """
 
@@ -29,6 +31,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + CAPSULE_COMPACT_DOC))
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
+        include_field_names: bool = False,
     ) -> CompactCapsuleResult:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
@@ -39,11 +42,13 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),
             result_type="capsule",
+            include_field_names=include_field_names,
         )
 
     @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + CAPSULE_COMPACT_DOC))
     def search_pipelines(
         search_params: CapsuleSearchParamsModel,
+        include_field_names: bool = False,
     ) -> CompactCapsuleResult:
         """Search for pipelines matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
@@ -54,6 +59,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             has_more=results.has_more,
             next_token=getattr(results, "next_token", None),
             result_type="pipeline",
+            include_field_names=include_field_names,
         )
 
     @mcp.tool(

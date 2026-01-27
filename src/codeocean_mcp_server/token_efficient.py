@@ -17,6 +17,7 @@ class CompactSearchMeta(BaseModel):
     next_token: Optional[str] = None
     total_returned: int
     result_type: str  # "capsule", "pipeline", or "data_asset"
+    field_names: Optional[dict[str, str]] = None
 
 
 class CompactCapsuleItem(BaseModel):
@@ -110,6 +111,7 @@ def to_compact_result(
     has_more: bool,
     next_token: Optional[str],
     result_type: str,
+    include_field_names: bool = False,
 ) -> CompactCapsuleResult | CompactDataAssetResult:
     """Convert search results to compact object format."""
     include_slug = result_type in ("capsule", "pipeline")
@@ -120,6 +122,13 @@ def to_compact_result(
         total_returned=len(items),
         result_type=result_type,
     )
+    if include_field_names:
+        # Optional mapping keeps a single schema while allowing dynamic labeling.
+        meta.field_names = (
+            {"id": "id", "n": "name", "s": "slug", "d": "description", "t": "tags"}
+            if include_slug
+            else {"id": "id", "n": "name", "d": "description", "t": "tags"}
+        )
 
     if include_slug:
         return CompactCapsuleResult(items=items, meta=meta)
