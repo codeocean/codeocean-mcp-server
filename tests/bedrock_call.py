@@ -7,7 +7,15 @@ from bedrock_tools_converter import convert_tool_format
 
 BEDROCK_MODEL = os.getenv("BEDROCK_MODEL") or "amazon.nova-pro-v1:0"
 
-client = boto3.client("bedrock-runtime")
+_client = None
+
+
+def _get_client():
+    """Lazily initialize the Bedrock client."""
+    global _client
+    if _client is None:
+        _client = boto3.client("bedrock-runtime")
+    return _client
 
 
 def call_bedrock(
@@ -26,4 +34,4 @@ def call_bedrock(
     if tools is not None:
         payload["toolConfig"] = convert_tool_format(tools, model)
 
-    return client.converse(**payload)
+    return _get_client().converse(**payload)

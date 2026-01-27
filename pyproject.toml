@@ -66,3 +66,5 @@ filterwarnings = [
   "ignore:datetime.datetime.utcnow() is deprecated:DeprecationWarning:botocore.auth",
   "ignore::DeprecationWarning:botocore.*",
 ]
+markers = ["integration: requires external services (AWS/Bedrock)"]
+asyncio_mode = "strict"

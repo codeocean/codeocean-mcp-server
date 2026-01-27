@@ -3,7 +3,6 @@ from codeocean.capsule import (
     AppPanel,
     Capsule,
     CapsuleSearchParams,
-    CapsuleSearchResults,
     Computation,
     DataAssetAttachParams,
     DataAssetAttachResults,
@@ -11,6 +10,7 @@ from codeocean.capsule import (
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
+from codeocean_mcp_server.search import CapsuleSearchResults
 
 AppPanelModel = dataclass_to_pydantic(AppPanel)
 CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
@@ -20,31 +20,25 @@ DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
-    @mcp.tool(
-        description=(
-            str(client.capsules.search_capsules.__doc__) + "Use only for capsule searches. "
-            "Provide only the minimal required parameters (e.g. limit=10); "
-            "do not include optional params "
-            "like sort_by or sort_order unless requested."
-        )
-    )
-    def search_capsules(search_params: CapsuleSearchParamsModel) -> CapsuleSearchResults:
+    @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + " " + str(CapsuleSearchResults.__doc__)))
+    def search_capsules(
+        search_params: CapsuleSearchParamsModel,
+        include_field_names: bool = False,
+    ) -> CapsuleSearchResults:
         """Search for capsules matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        return client.capsules.search_capsules(params)
+        results = client.capsules.search_capsules(params)
+        return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
-    @mcp.tool(
-        description=(
-            str(client.capsules.search_pipelines.__doc__) + "Use only for pipeline searches. "
-            "Provide only the minimal required parameters (e.g. limit=10); "
-            "do not include optional params "
-            "like sort_by or sort_order unless requested."
-        )
-    )
-    def search_pipelines(search_params: CapsuleSearchParamsModel) -> CapsuleSearchResults:
+    @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + " " + str(CapsuleSearchResults.__doc__)))
+    def search_pipelines(
+        search_params: CapsuleSearchParamsModel,
+        include_field_names: bool = False,
+    ) -> CapsuleSearchResults:
         """Search for pipelines matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        return client.capsules.search_pipelines(params)
+        results = client.capsules.search_pipelines(params)
+        return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
     @mcp.tool(
         description=(
