@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.8.0 (2026-01-27)
+
+- [#24](https://github.com/codeocean/codeocean-mcp-server/pull/24) feat: Token efficient search responses
+
 ## 0.7.2 (2025-12-27)
 
 - [#20](https://github.com/codeocean/codeocean-mcp-server/pull/20) feat: custom log formatting
