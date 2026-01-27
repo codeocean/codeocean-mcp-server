@@ -20,7 +20,7 @@ DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add capsule tools to the MCP server."""
 
-    @mcp.tool(description=((client.capsules.search_capsules.__doc__ or "") + (CapsuleSearchResults.__doc__ or "")))
+    @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + str(CapsuleSearchResults.__doc__)))
     def search_capsules(
         search_params: CapsuleSearchParamsModel,
         include_field_names: bool = False,
@@ -30,7 +30,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         results = client.capsules.search_capsules(params)
         return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
-    @mcp.tool(description=((client.capsules.search_pipelines.__doc__ or "") + (CapsuleSearchResults.__doc__ or "")))
+    @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + str(CapsuleSearchResults.__doc__)))
     def search_pipelines(
         search_params: CapsuleSearchParamsModel,
         include_field_names: bool = False,

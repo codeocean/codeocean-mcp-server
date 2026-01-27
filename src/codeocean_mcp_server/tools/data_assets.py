@@ -24,9 +24,7 @@ DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
-    @mcp.tool(
-        description=((client.data_assets.search_data_assets.__doc__ or "") + (DataAssetSearchResults.__doc__ or ""))
-    )
+    @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + str(DataAssetSearchResults.__doc__)))
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
         include_field_names: bool = False,
@@ -45,7 +43,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            (client.data_assets.get_data_asset_file_urls.__doc__ or "")
+            str(client.data_assets.get_data_asset_file_urls.__doc__)
             + "Call only when the data asset is already created and in a ready "
             "state. If the asset may not yet be ready, first use "
             "`wait_until_ready` to poll until readiness, then retrieve the "
@@ -78,7 +76,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            (client.data_assets.wait_until_ready.__doc__ or "")
+            str(client.data_assets.wait_until_ready.__doc__)
             + "Poll until the specified data asset becomes ready before "
             "performing further operations (e.g., downloading files). You can "
             "set `polling_interval` and optional `timeout`."
@@ -98,7 +96,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            (client.data_assets.create_data_asset.__doc__ or "")
+            str(client.data_assets.create_data_asset.__doc__)
             + f"You can link to the created data assets with the 'data_asset_id' "
             f"with the pattern: {os.getenv('CODEOCEAN_DOMAIN', 'unknown')} with /data-assets/<data_asset_id>."
         )
