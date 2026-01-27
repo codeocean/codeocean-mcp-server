@@ -199,7 +199,7 @@ class TestCapsuleSearchResults:
         assert result.items[1].t == []
         assert result.has_more is True
         assert result.next_token == "token123"
-        assert result.total_count == 2
+        assert result.item_count == 2
         assert result.field_names is None
 
     def test_from_sdk_results_with_field_names(self):
@@ -225,7 +225,7 @@ class TestCapsuleSearchResults:
 
         assert "items" in json_str
         assert "has_more" in json_str
-        assert "total_count" in json_str
+        assert "item_count" in json_str
 
 
 class TestDataAssetSearchResults:
@@ -250,7 +250,7 @@ class TestDataAssetSearchResults:
         assert result.items[1].t == []
         assert result.has_more is False
         assert result.next_token is None
-        assert result.total_count == 2
+        assert result.item_count == 2
         assert result.field_names is None
 
     def test_truncation_applied(self):

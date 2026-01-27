@@ -63,11 +63,11 @@ class CompactDataAssetItem(BaseModel):
 
 
 class SearchMeta(BaseModel):
-    """Mixin providing search metadata fields."""
+    """Base model providing search metadata fields."""
 
     has_more: bool
     next_token: Optional[str] = None
-    total_count: int
+    item_count: int
     field_names: Optional[dict[str, str]] = None
 
 
@@ -99,7 +99,7 @@ class CapsuleSearchResults(SearchMeta):
             items=items,
             has_more=sdk_results.has_more,
             next_token=getattr(sdk_results, "next_token", None),
-            total_count=len(items),
+            item_count=len(items),
             field_names=cls.FIELD_NAMES if include_field_names else None,
         )
 
@@ -131,6 +131,6 @@ class DataAssetSearchResults(SearchMeta):
             items=items,
             has_more=sdk_results.has_more,
             next_token=getattr(sdk_results, "next_token", None),
-            total_count=len(items),
+            item_count=len(items),
             field_names=cls.FIELD_NAMES if include_field_names else None,
         )

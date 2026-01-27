@@ -24,7 +24,9 @@ DataAssetUpdateParamsModel = dataclass_to_pydantic(DataAssetUpdateParams)
 def add_tools(mcp: FastMCP, client: CodeOcean):
     """Add data asset tools to the MCP server."""
 
-    @mcp.tool(description=(str(client.data_assets.search_data_assets.__doc__) + str(DataAssetSearchResults.__doc__)))
+    @mcp.tool(
+        description=(str(client.data_assets.search_data_assets.__doc__) + " " + str(DataAssetSearchResults.__doc__))
+    )
     def search_data_assets(
         search_params: DataAssetSearchParamsModel,
         include_field_names: bool = False,
