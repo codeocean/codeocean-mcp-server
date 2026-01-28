@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.8.1 (2026-01-28)
+
+- fix: update documentation for CapsuleSearchResults and DataAssetSearchResults to reflect item_count
+
 ## 0.8.0 (2026-01-27)
 
 - [#24](https://github.com/codeocean/codeocean-mcp-server/pull/24) feat: Token efficient search responses
