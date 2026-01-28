@@ -72,7 +72,7 @@ class SearchMeta(BaseModel):
 
 
 class CapsuleSearchResults(SearchMeta):
-    """Compact results: {items: [{id, n, s, d, t}], has_more, next_token, total_count}.
+    """Compact results: {items: [{id, n, s, d, t}], has_more, next_token, item_count}.
 
     Fields: id=id, n=name, s=slug, d=description (truncated), t=tags (limited).
     Set include_field_names=true to add field_names with full labels.
@@ -105,7 +105,7 @@ class CapsuleSearchResults(SearchMeta):
 
 
 class DataAssetSearchResults(SearchMeta):
-    """Compact results: {items: [{id, n, d, t}], has_more, next_token, total_count}.
+    """Compact results: {items: [{id, n, d, t}], has_more, next_token, item_count}.
 
     Fields: id=id, n=name, d=description (truncated), t=tags (limited).
     Set include_field_names=true to add field_names with full labels.
