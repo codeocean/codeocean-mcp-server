@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.8.2 (2026-01-29)
+
+- [#27](https://github.com/codeocean/codeocean-mcp-server/pull/27) fix: update documentation for search results to include pagination details
+
 ## 0.8.1 (2026-01-28)
 
 - fix: update documentation for CapsuleSearchResults and DataAssetSearchResults to reflect item_count

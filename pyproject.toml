@@ -1,6 +1,6 @@
 [project]
 name = "codeocean-mcp-server"
-version = "0.8.1"
+version = "0.8.2"
 authors = [{ name = "Code Ocean", email = "dev@codeocean.com" }]
 description = "Code Ocean MCP Server"
 readme = "README.md"
