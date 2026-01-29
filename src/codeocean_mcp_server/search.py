@@ -74,7 +74,9 @@ class SearchMeta(BaseModel):
 class CapsuleSearchResults(SearchMeta):
     """Compact results: {items: [{id, n, s, d, t}], has_more, next_token, item_count}.
 
-    Fields: id=id, n=name, s=slug, d=description (truncated), t=tags (limited).
+    Item fields: id=id, n=name, s=slug, d=description (truncated), t=tags (limited).
+    Pagination: item_count returns the number of items in the current page.
+      Use next_token for additional pages when has_more=true.
     Set include_field_names=true to add field_names with full labels.
     Use get_capsule(id) if full details needed.
     """
@@ -107,7 +109,9 @@ class CapsuleSearchResults(SearchMeta):
 class DataAssetSearchResults(SearchMeta):
     """Compact results: {items: [{id, n, d, t}], has_more, next_token, item_count}.
 
-    Fields: id=id, n=name, d=description (truncated), t=tags (limited).
+    Item fields: id=id, n=name, d=description (truncated), t=tags (limited).
+    Pagination: item_count returns the number of items in the current page.
+      Use next_token for additional pages when has_more=true.
     Set include_field_names=true to add field_names with full labels.
     Use get_data_asset(id) if full details needed.
     """
