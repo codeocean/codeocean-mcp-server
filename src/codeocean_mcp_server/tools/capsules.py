@@ -30,14 +30,14 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         results = client.capsules.search_capsules(params)
         return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
-    @mcp.tool(description=(str(client.capsules.search_pipelines.__doc__) + " " + str(CapsuleSearchResults.__doc__)))
+    @mcp.tool(description=(str(client.pipelines.search_pipelines.__doc__) + " " + str(CapsuleSearchResults.__doc__)))
     def search_pipelines(
         search_params: CapsuleSearchParamsModel,
         include_field_names: bool = False,
     ) -> CapsuleSearchResults:
         """Search for pipelines matching specified criteria."""
         params = CapsuleSearchParams(**search_params.model_dump(exclude_none=True))
-        results = client.capsules.search_pipelines(params)
+        results = client.pipelines.search_pipelines(params)
         return CapsuleSearchResults.from_sdk_results(results, include_field_names)
 
     @mcp.tool(
@@ -74,3 +74,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
+
+    @mcp.tool(description=client.capsules.detach_data_assets.__doc__)
+    def detach_data_assets(capsule_id: str, data_assets: list[str]) -> None:
+        """Remove attached data assets from a capsule."""
+        client.capsules.detach_data_assets(capsule_id, data_assets)

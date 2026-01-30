@@ -5,12 +5,14 @@ from codeocean.computation import (
     Folder,
     RunParams,
 )
+from codeocean.data_asset import DataAssetAttachParams, DataAssetAttachResults
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.file_utils import download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
 RunParamsModel = dataclass_to_pydantic(RunParams)
+DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
 def add_tools(mcp: FastMCP, client: CodeOcean):
@@ -59,3 +61,28 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Download a file using the provided URL and return its content."""
         file_urls = client.computations.get_result_file_urls(computation_id, file_path)
         return download_and_read_file(file_urls.download_url)
+
+    @mcp.tool(description=client.computations.rename_computation.__doc__)
+    def rename_computation(computation_id: str, name: str) -> None:
+        """Rename an existing computation."""
+        client.computations.rename_computation(computation_id, name)
+
+    @mcp.tool(
+        description=(
+            str(client.computations.attach_data_assets.__doc__)
+            + "Accepts a list of parameter objects (e.g. [{'id': '...'}]). "
+            "Use for cloud workstation sessions."
+        )
+    )
+    def attach_computation_data_assets(
+        computation_id: str,
+        attach_params: list[DataAssetAttachParamsModel],
+    ) -> list[DataAssetAttachResults]:
+        """Attach data assets to a cloud workstation session."""
+        params = [DataAssetAttachParams(**p.model_dump(exclude_none=True)) for p in attach_params]
+        return client.computations.attach_data_assets(computation_id, params)
+
+    @mcp.tool(description=client.computations.detach_data_assets.__doc__)
+    def detach_computation_data_assets(computation_id: str, data_assets: list[str]) -> None:
+        """Detach data assets from a cloud workstation session."""
+        client.computations.detach_data_assets(computation_id, data_assets)
