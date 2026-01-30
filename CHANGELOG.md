@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+## 0.9.0 (2026-01-30)
+
+- [#29](https://github.com/codeocean/codeocean-mcp-server/pull/29) feat: upgrade codeocean SDK to v0.14.0
+- **Minimum Code Ocean platform version updated to `4.2.0`.**
+
 ## 0.8.2 (2026-01-29)
 
 - [#27](https://github.com/codeocean/codeocean-mcp-server/pull/27) fix: update documentation for search results to include pagination details
