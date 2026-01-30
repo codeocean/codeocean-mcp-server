@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -514,7 +514,7 @@ wheels = [
 
 [[package]]
 name = "codeocean"
-version = "0.12.0"
+version = "0.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backports-strenum", marker = "python_full_version < '3.11'" },
@@ -522,14 +522,14 @@ dependencies = [
     { name = "requests" },
     { name = "requests-toolbelt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1e/87/63203a9bd4c9f160b02d60016c6222e0836a192d74b624445540667a9a34/codeocean-0.12.0.tar.gz", hash = "sha256:f124a0c090dfdecbbce5f2b033673142820cc200a4a4ed12239027e0eff0ada8", size = 19465, upload-time = "2025-10-21T07:28:06.618Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/de/5d0ed25123b5e903eec6325249c23d3ae76d1ad5aceff000c9544e242700/codeocean-0.14.0.tar.gz", hash = "sha256:90d2a58a9c8d05edc53becc0b63773c5b8cd44423de19afa3b0ce1d82ebfadc6", size = 21461, upload-time = "2026-01-29T23:11:34.016Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0c/67/86aaaa16e089883035cc45e1d93e5861cdf912e98c3f69dfaf7c7fa9b9a9/codeocean-0.12.0-py3-none-any.whl", hash = "sha256:c9135d34d0920dae5298095bb7ad03fffff5b5fd4c5e941a0200c3c38090df1c", size = 20417, upload-time = "2025-10-21T07:28:07.596Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/d1/ef0027ce1a17eedd8c671495d780fffa0590d017061337e4ff86a0a0054e/codeocean-0.14.0-py3-none-any.whl", hash = "sha256:33ea9cde80df0c7d986e493a88edbe00f13b5d0cf92cfaed8a518f7314dbf4e1", size = 25201, upload-time = "2026-01-29T23:11:36.219Z" },
 ]
 
 [[package]]
 name = "codeocean-mcp-server"
-version = "0.8.1"
+version = "0.8.2"
 source = { editable = "." }
 dependencies = [
     { name = "codeocean" },
@@ -548,7 +548,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "codeocean", specifier = ">=0.12.0,<0.13.0" },
+    { name = "codeocean", specifier = ">=0.14.0,<0.15.0" },
     { name = "mcp", specifier = ">=1.12.0,<1.13.0" },
 ]
 
