@@ -70,7 +70,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(
         description=(
             str(client.computations.attach_data_assets.__doc__)
-            + "Accepts a list of parameter objects (e.g. [{'id': '...'}]). "
+            + " Accepts a list of parameter objects (e.g. [{'id': '...'}]). "
             "Use for cloud workstation sessions."
         )
     )

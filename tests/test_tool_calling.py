@@ -427,6 +427,79 @@ test_response = [
             },
         },
     },
+    # =================================================================
+    # Pipeline tests
+    # --------------------------------------------------------------
+    # search_pipelines
+    {
+        "id": "search_pipelines",
+        "prompt": "search for pipelines with query 'analysis' and return the first 5 results",
+        "expected": {
+            "name": "search_pipelines",
+            "input": {
+                "search_params": {
+                    "query": "analysis",
+                    "limit": 5,
+                }
+            },
+        },
+    },
+    # =================================================================
+    # Capsule detach tests
+    # --------------------------------------------------------------
+    # detach_data_assets from capsule
+    {
+        "id": "detach_data_assets",
+        "prompt": "detach data assets with ids: asset123, asset456 from capsule with id: capsule789",
+        "expected": {
+            "name": "detach_data_assets",
+            "input": {
+                "capsule_id": "capsule789",
+                "data_assets": ["asset123", "asset456"],
+            },
+        },
+    },
+    # =================================================================
+    # Computation management tests
+    # --------------------------------------------------------------
+    # rename_computation
+    {
+        "id": "rename_computation",
+        "prompt": "rename computation with id: comp123 to 'Analysis Run 2024'",
+        "expected": {
+            "name": "rename_computation",
+            "input": {
+                "computation_id": "comp123",
+                "name": "Analysis Run 2024",
+            },
+        },
+    },
+    # --------------------------------------------------------------
+    # attach_computation_data_assets
+    {
+        "id": "attach_computation_data_assets",
+        "prompt": "attach data assets with ids: data789, data101 to cloud workstation computation with id: ws_comp456",
+        "expected": {
+            "name": "attach_computation_data_assets",
+            "input": {
+                "computation_id": "ws_comp456",
+                "attach_params": [{"id": "data789"}, {"id": "data101"}],
+            },
+        },
+    },
+    # --------------------------------------------------------------
+    # detach_computation_data_assets
+    {
+        "id": "detach_computation_data_assets",
+        "prompt": "detach data assets with ids: data222, data333 from cloud workstation with id: ws_comp789",
+        "expected": {
+            "name": "detach_computation_data_assets",
+            "input": {
+                "computation_id": "ws_comp789",
+                "data_assets": ["data222", "data333"],
+            },
+        },
+    },
 ]
 
 
