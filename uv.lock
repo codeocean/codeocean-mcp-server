@@ -529,7 +529,7 @@ wheels = [
 
 [[package]]
 name = "codeocean-mcp-server"
-version = "0.8.2"
+version = "0.9.1"
 source = { editable = "." }
 dependencies = [
     { name = "codeocean" },
