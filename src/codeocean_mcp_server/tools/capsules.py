@@ -42,21 +42,6 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.capsules.attach_data_assets.__doc__)
-            + "Accepts a list of parameter objects (e.g. [{'id': '...'}]), "
-            "not just a list of IDs."
-        )
-    )
-    def attach_data_assets(
-        capsule_id: str,
-        attach_params: list[DataAssetAttachParamsModel],
-    ) -> list[DataAssetAttachResults]:
-        """Attach data assets to a capsule."""
-        params = [DataAssetAttachParams(**p.model_dump(exclude_none=True)) for p in attach_params]
-        return client.capsules.attach_data_assets(capsule_id, params)
-
-    @mcp.tool(
-        description=(
             str(client.capsules.get_capsule.__doc__) + "Use only to fetch metadata for a known capsule ID. "
             "Do not use for searching."
         )
@@ -70,12 +55,34 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """List all computations for a capsule."""
         return client.capsules.list_computations(capsule_id)
 
+    @mcp.tool(
+        description=(
+            str(client.capsules.attach_data_assets.__doc__)
+            + " Use when the capsule has no running cloud workstations. For active cloud workstation sessions"
+            " use attach_computation_data_assets instead."
+            " Accepts a list of parameter objects (e.g. [{'id': '...'}]), not just a list of IDs."
+        )
+    )
+    def attach_data_assets(
+        capsule_id: str,
+        attach_params: list[DataAssetAttachParamsModel],
+    ) -> list[DataAssetAttachResults]:
+        """Attach data assets to a capsule."""
+        params = [DataAssetAttachParams(**p.model_dump(exclude_none=True)) for p in attach_params]
+        return client.capsules.attach_data_assets(capsule_id, params)
+
+    @mcp.tool(
+        description=(
+            str(client.capsules.detach_data_assets.__doc__)
+            + " Use when the capsule has no running cloud workstations. For active cloud workstation sessions"
+            " use detach_computation_data_assets instead."
+        )
+    )
+    def detach_data_assets(capsule_id: str, data_assets: list[str]) -> None:
+        """Remove attached data assets from a capsule."""
+        client.capsules.detach_data_assets(capsule_id, data_assets)
+
     @mcp.tool(description=client.capsules.get_capsule_app_panel.__doc__)
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
-
-    @mcp.tool(description=client.capsules.detach_data_assets.__doc__)
-    def detach_data_assets(capsule_id: str, data_assets: list[str]) -> None:
-        """Remove attached data assets from a capsule."""
-        client.capsules.detach_data_assets(capsule_id, data_assets)
