@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.10.0 (2026-02-24)
+
+- [#33](https://github.com/codeocean/codeocean-mcp-server/pull/33) feat: upgrade mcp package
+
 ## 0.9.1 (2026-02-04)
 
 - [#31](https://github.com/codeocean/codeocean-mcp-server/pull/31) feat: clarify data asset attach tool usage
