@@ -15,7 +15,7 @@ RunParamsModel = dataclass_to_pydantic(RunParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
-def add_tools(mcp: FastMCP, client: CodeOcean):
+def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
     """Add capsule tools to the MCP server."""
 
     @mcp.tool(description=client.computations.get_computation.__doc__)
@@ -66,6 +66,11 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def rename_computation(computation_id: str, name: str) -> None:
         """Rename an existing computation."""
         client.computations.rename_computation(computation_id, name)
+
+    @mcp.tool(description=client.computations.delete_computation.__doc__)
+    def delete_computation(computation_id: str) -> None:
+        """Delete a computation and stop it if currently running."""
+        client.computations.delete_computation(computation_id)
 
     @mcp.tool(
         description=(
