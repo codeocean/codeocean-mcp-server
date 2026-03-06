@@ -15,7 +15,7 @@ RunParamsModel = dataclass_to_pydantic(RunParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
-def add_tools(mcp: FastMCP, client: CodeOcean):
+def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
     """Add capsule tools to the MCP server."""
 
     @mcp.tool(description=client.computations.get_computation.__doc__)
