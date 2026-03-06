@@ -475,6 +475,16 @@ test_response = [
         },
     },
     # --------------------------------------------------------------
+    # delete_computation
+    {
+        "id": "delete_computation",
+        "prompt": "delete computation with id: comp123",
+        "expected": {
+            "name": "delete_computation",
+            "input": {"computation_id": "comp123"},
+        },
+    },
+    # --------------------------------------------------------------
     # attach_computation_data_assets
     {
         "id": "attach_computation_data_assets",

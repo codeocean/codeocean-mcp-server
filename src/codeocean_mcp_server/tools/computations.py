@@ -67,6 +67,11 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Rename an existing computation."""
         client.computations.rename_computation(computation_id, name)
 
+    @mcp.tool(description=client.computations.delete_computation.__doc__)
+    def delete_computation(computation_id: str) -> None:
+        """Delete a computation and stop it if currently running."""
+        client.computations.delete_computation(computation_id)
+
     @mcp.tool(
         description=(
             str(client.computations.attach_data_assets.__doc__)
