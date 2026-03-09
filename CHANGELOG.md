@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.11.0 (2026-03-09)
+
+- [#35](https://github.com/codeocean/codeocean-mcp-server/pull/35) feat: add `delete_computation` tool to stop and delete computations
+
 ## 0.10.0 (2026-02-24)
 
 - [#33](https://github.com/codeocean/codeocean-mcp-server/pull/33) feat: upgrade mcp package
