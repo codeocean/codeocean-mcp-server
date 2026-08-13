@@ -1,6 +1,6 @@
 [project]
 name = "codeocean-mcp-server"
-version = "0.12.2"
+version = "0.13.0"
 authors = [{ name = "Code Ocean", email = "dev@codeocean.com" }]
 description = "Code Ocean MCP Server"
 readme = "README.md"
@@ -12,7 +12,7 @@ classifiers = [
 ]
 dependencies = [
   "anyio>=4.5",
-  "codeocean>=0.14.0,<0.15.0",
+  "codeocean>=0.17.0,<0.18.0",
   "mcp>=1.23.0,<1.24.0",
 ]
 license = "MIT"

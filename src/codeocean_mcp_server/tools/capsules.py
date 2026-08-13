@@ -2,6 +2,7 @@ from codeocean import CodeOcean
 from codeocean.capsule import (
     AppPanel,
     Capsule,
+    CapsuleReleaseResults,
     CapsuleSearchParams,
     Computation,
     DataAssetAttachParams,
@@ -86,3 +87,13 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
+
+    @mcp.tool(description=str(client.capsules.release_capsule.__doc__))
+    def release_capsule(capsule_id: str) -> CapsuleReleaseResults:
+        """Release a new version of an already-released capsule."""
+        return client.capsules.release_capsule(capsule_id)
+
+    @mcp.tool(description=str(client.pipelines.release_pipeline.__doc__))
+    def release_pipeline(pipeline_id: str) -> CapsuleReleaseResults:
+        """Release a new version of an already-released pipeline."""
+        return client.pipelines.release_pipeline(pipeline_id)

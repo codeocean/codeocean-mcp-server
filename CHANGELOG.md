@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.13.0 (TBD)
+
+- [#37](https://github.com/codeocean/codeocean-mcp-server/pull/37) feat: add public release capsule/pipeline API
+
 ## 0.12.2 (2026-09-03)
 
 - [#42](https://github.com/codeocean/codeocean-mcp-server/pull/42) fix: run synchronous tool bodies in a worker thread
