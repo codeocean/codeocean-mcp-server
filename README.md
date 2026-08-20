@@ -15,6 +15,7 @@ This MCP server provides tools to search and run capsules and pipelines, and man
     - [Roo Code](#roo-code)
     - [Cursor](#cursor)
     - [Windsurf](#windsurf)
+- [Streamable HTTP Transport](#streamable-http-transport)
 - [Local Testing](#local-testing)
 
 ## Prerequisites
@@ -196,6 +197,19 @@ Windsurf (Cascade) uses mcp_config.json under ~/.codeium/windsurf/ (or via the C
 ```
 
 3.	Save and restart Windsurf (or hit “Refresh” in the MCP panel).
+
+## Streamable HTTP Transport
+
+By default the server runs over stdio and authenticates with the `CODEOCEAN_TOKEN` environment variable, as
+described above. It can also serve multiple users from a single process over streamable HTTP, taking each
+caller's API token from the request instead:
+
+```bash
+CODEOCEAN_DOMAIN=https://acmecorp.codeocean.com codeocean-mcp-server --transport streamable-http --host 127.0.0.1 --port 8000
+```
+
+Clients then pass their own token as `Authorization: Bearer <YOUR_API_KEY>` on every request; `CODEOCEAN_TOKEN`
+is not used, and a request without a token is refused. The endpoint is `http://<host>:<port>/mcp`.
 
 ## Local Testing
 
