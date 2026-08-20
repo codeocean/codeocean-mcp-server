@@ -36,8 +36,10 @@ def main():
     stdio = args.transport == "stdio"
     domain = os.getenv("CODEOCEAN_DOMAIN")
     token = os.getenv("CODEOCEAN_TOKEN")
-    if not domain or (stdio and not token):
-        raise ValueError("Environment variables CODEOCEAN_DOMAIN and CODEOCEAN_TOKEN must be set.")
+    if not domain:
+        raise ValueError("Environment variable CODEOCEAN_DOMAIN must be set.")
+    if stdio and not token:
+        raise ValueError("Environment variable CODEOCEAN_TOKEN must be set when serving over stdio.")
     agent_id = os.getenv("AGENT_ID", "AI Agent")
     env_client = CodeOcean(domain=domain, token=token or "", agent_id=agent_id)
 

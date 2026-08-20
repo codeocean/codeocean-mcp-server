@@ -87,8 +87,8 @@ def _stdio_server(domain: str) -> StdioServerParameters:
     )
 
 
-async def _call_get_custom_metadata(url: str, token: str | None):
-    headers = {"Authorization": f"Bearer {token}"} if token else None
+async def _call_get_custom_metadata(url: str, token: str | None, scheme: str = "Bearer"):
+    headers = {"Authorization": f"{scheme} {token}"} if token else None
     async with streamablehttp_client(url, headers=headers) as (read_stream, write_stream, _):
         async with ClientSession(read_stream, write_stream) as session:
             await session.initialize()
@@ -114,6 +114,14 @@ def test_request_without_credential_is_refused(http_server):
     """A request carrying no token is refused rather than served with the environment's client."""
     url, _ = http_server
     result = asyncio.run(_call_get_custom_metadata(url, None))
+    assert result.isError
+    assert "Missing Code Ocean API token" in result.content[0].text
+
+
+def test_non_bearer_credential_is_refused(http_server):
+    """A token offered under any scheme other than Bearer is refused rather than used."""
+    url, _ = http_server
+    result = asyncio.run(_call_get_custom_metadata(url, "alice-token", scheme="Basic"))
     assert result.isError
     assert "Missing Code Ocean API token" in result.content[0].text
 

@@ -14,8 +14,11 @@ def _cached_client(domain: str, token: str, agent_id: str | None) -> CodeOcean:
 
 
 def _bearer_token(request: Request) -> str | None:
+    """Return the token from an 'Authorization: Bearer <token>' header, or None for any other scheme."""
     scheme, _, token = request.headers.get("authorization", "").partition(" ")
-    return token.strip() or None if scheme.lower() == "bearer" else None
+    if scheme.lower() != "bearer":
+        return None
+    return token.strip() or None
 
 
 class RequestScopedClient:
