@@ -38,10 +38,7 @@ def main():
     token = os.getenv("CODEOCEAN_TOKEN")
     if not domain:
         raise ValueError("Environment variable CODEOCEAN_DOMAIN must be set.")
-    if stdio and not token:
-        raise ValueError("Environment variable CODEOCEAN_TOKEN must be set when serving over stdio.")
     agent_id = os.getenv("AGENT_ID", "AI Agent")
-    env_client = CodeOcean(domain=domain, token=token or "", agent_id=agent_id)
 
     mcp = FastMCP(
         name="Code Ocean",
@@ -53,8 +50,13 @@ def main():
         stateless_http=True,
     )
 
-    # Over stdio the process serves a single user, so the environment's client is used directly, as before.
-    client = env_client if stdio else RequestScopedClient(mcp, domain, agent_id, placeholder=env_client)
+    if stdio:
+        # Over stdio the process serves a single user, so the environment's client is used directly, as before.
+        if not token:
+            raise ValueError("Environment variable CODEOCEAN_TOKEN must be set when serving over stdio.")
+        client = CodeOcean(domain=domain, token=token, agent_id=agent_id)
+    else:
+        client = RequestScopedClient(mcp, domain, token, agent_id)
 
     capsules.add_tools(mcp, client)
     data_assets.add_tools(mcp, client)

@@ -28,15 +28,15 @@ class RequestScopedClient:
     the client is enough to give each request its own credentials without touching the tools themselves.
 
     Outside a request — tool registration, where descriptions are read from SDK docstrings — attribute
-    access resolves to `placeholder`, which issues no network call.
+    access resolves to a client built from the environment's token, which issues no network call.
     """
 
-    def __init__(self, mcp: FastMCP, domain: str, agent_id: str | None, placeholder: CodeOcean):
+    def __init__(self, mcp: FastMCP, domain: str, token: str | None, agent_id: str | None):
         """Wrap the credentials that are fixed for the process, around the token that varies per request."""
         self._mcp = mcp
         self._domain = domain
+        self._token = token
         self._agent_id = agent_id
-        self._placeholder = placeholder
 
     def __getattr__(self, name: str):
         """Delegate to the calling request's client."""
@@ -46,7 +46,8 @@ class RequestScopedClient:
         try:
             request = self._mcp.get_context().request_context.request
         except ValueError:
-            return self._placeholder
+            # Registration happens outside any request, so it needs no credential of its own.
+            return _cached_client(self._domain, self._token or "", self._agent_id)
         token = _bearer_token(request) if request is not None else None
         if not token:
             raise ValueError("Missing Code Ocean API token: send it as an 'Authorization: Bearer <token>' header.")
