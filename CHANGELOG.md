@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.12.0 (2026-08-27)
+
+- [#38](https://github.com/codeocean/codeocean-mcp-server/pull/38) feat: serve over streamable HTTP with per-request credentials
+
 ## 0.11.0 (2026-03-09)
 
 - [#35](https://github.com/codeocean/codeocean-mcp-server/pull/35) feat: add `delete_computation` tool to stop and delete computations
