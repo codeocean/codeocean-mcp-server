@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.12.1 (2026-08-28)
+
+- [#40](https://github.com/codeocean/codeocean-mcp-server/pull/40) fix: apply `LOG_FORMAT` to uvicorn's own log records
+
 ## 0.12.0 (2026-08-27)
 
 - [#38](https://github.com/codeocean/codeocean-mcp-server/pull/38) feat: serve over streamable HTTP with per-request credentials
