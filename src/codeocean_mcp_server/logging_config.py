@@ -7,8 +7,10 @@ def configure_logging() -> None:
     """Configure logging based on LOG_FORMAT environment variable.
 
     If LOG_FORMAT is set, configures the root logger with a StreamHandler
-    using the specified format string. This must be called before FastMCP
-    initialization to ensure our configuration takes precedence.
+    using the specified format string, and applies the same format to the
+    loggers uvicorn serves the streamable-HTTP transport with. This must be
+    called before FastMCP initialization to ensure our configuration takes
+    precedence.
 
     If LOG_FORMAT is not set or is empty, does nothing and lets FastMCP
     configure logging with its default settings.
@@ -45,3 +47,14 @@ def configure_logging() -> None:
     # This must be done before FastMCP calls logging.basicConfig()
     logging.root.addHandler(handler)
     logging.root.setLevel(logging.INFO)
+
+    # Over streamable HTTP, uvicorn logs through its own loggers, which it gives handlers that do
+    # not propagate to the root logger. It configures them from this dictionary, which FastMCP
+    # leaves at its default value, so its contents have to be replaced to be reached at all.
+    from uvicorn.config import LOGGING_CONFIG
+
+    LOGGING_CONFIG["formatters"]["default"]["fmt"] = log_format
+    # Access records carry the request in fields of their own rather than in the message.
+    LOGGING_CONFIG["formatters"]["access"]["fmt"] = log_format.replace(
+        "%(message)s", '%(client_addr)s - "%(request_line)s" %(status_code)s'
+    )
