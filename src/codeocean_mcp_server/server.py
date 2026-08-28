@@ -31,8 +31,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def main():
     """Run the MCP server."""
-    configure_logging()
     args = parse_args()
+    configure_logging(args.transport)
     stdio = args.transport == "stdio"
     domain = os.getenv("CODEOCEAN_DOMAIN")
     token = os.getenv("CODEOCEAN_TOKEN")
