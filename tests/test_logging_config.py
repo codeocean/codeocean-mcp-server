@@ -20,6 +20,16 @@ def _free_port() -> int:
         return sock.getsockname()[1]
 
 
+def _wait_until_listening(port: int, timeout: float = 30.0):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        with socket.socket() as sock:
+            if sock.connect_ex(("127.0.0.1", port)) == 0:
+                return
+        time.sleep(0.1)
+    raise TimeoutError(f"MCP server did not start listening on port {port}")
+
+
 def _serve_and_request(port: int) -> str:
     """Serve over streamable HTTP, make one request, and return everything the server logged."""
     env = {**os.environ, "CODEOCEAN_DOMAIN": "test-domain", "LOG_FORMAT": LOG_FORMAT}
@@ -31,15 +41,10 @@ def _serve_and_request(port: int) -> str:
         text=True,
     )
     try:
-        deadline = time.monotonic() + 30
-        while time.monotonic() < deadline:
-            with socket.socket() as sock:
-                if sock.connect_ex(("127.0.0.1", port)) == 0:
-                    break
-            time.sleep(0.1)
+        _wait_until_listening(port)
         request = urllib.request.Request(f"http://127.0.0.1:{port}/mcp", data=b"{}")
         try:
-            urllib.request.urlopen(request)
+            urllib.request.urlopen(request, timeout=30)
         except urllib.error.HTTPError:
             pass  # The request is rejected; it is logged either way, which is what is under test.
     finally:
@@ -55,8 +60,9 @@ def test_log_format_applies_to_uvicorns_own_records():
     timestamp = r"^[\d-]{10} [\d:,]+"
     assert re.search(rf"{timestamp} server INFO \[uvicorn\.error\] Uvicorn running", log, re.MULTILINE)
     assert re.search(
-        # The status carries its phrase, which only uvicorn's own access formatter puts there.
-        rf'{timestamp} server INFO \[uvicorn\.access\] 127\.0\.0\.1:\d+ - "POST /mcp HTTP/1.1" \d{{3}} [A-Za-z]',
+        # The status runs to the end of the line as code and phrase, which only uvicorn's own
+        # access formatter puts there; the raw record carries the code alone.
+        rf'{timestamp} server INFO \[uvicorn\.access\] 127\.0\.0\.1:\d+ - "POST /mcp HTTP/1.1" \d{{3}} \w+( \w+)*$',
         log,
         re.MULTILINE,
     )
