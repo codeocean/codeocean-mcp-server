@@ -1,6 +1,10 @@
 import argparse
+import functools
+import inspect
 import os
+from collections.abc import Callable
 
+import anyio
 from codeocean import CodeOcean
 from mcp.server.fastmcp import FastMCP
 
@@ -12,6 +16,34 @@ from codeocean_mcp_server.tools import (
     custom_metadata,
     data_assets,
 )
+
+
+class ThreadedFastMCP(FastMCP):
+    """A server that runs synchronous tool bodies in a worker thread.
+
+    FastMCP awaits an asynchronous tool but calls a synchronous one on the event loop, where it
+    blocks the whole process for as long as it runs: no other tool call, and no other session's
+    requests, are served meanwhile. The tools here are synchronous and some wait on a computation,
+    so they are handed to a thread instead. anyio copies the context into it, leaving each call's
+    per-request credentials in place.
+    """
+
+    def tool(self, *args, **kwargs) -> Callable[[Callable], Callable]:
+        """Register a tool, moving a synchronous one off the event loop."""
+        register = super().tool(*args, **kwargs)
+
+        def decorator(fn: Callable) -> Callable:
+            if inspect.iscoroutinefunction(fn):
+                return register(fn)
+
+            @functools.wraps(fn)
+            async def in_worker_thread(**arguments):
+                return await anyio.to_thread.run_sync(functools.partial(fn, **arguments))
+
+            register(in_worker_thread)
+            return fn
+
+        return decorator
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -40,7 +72,7 @@ def main():
         raise ValueError("Environment variable CODEOCEAN_DOMAIN must be set.")
     agent_id = os.getenv("AGENT_ID", "AI Agent")
 
-    mcp = FastMCP(
+    mcp = ThreadedFastMCP(
         name="Code Ocean",
         instructions=(
             f"MCP server for Code Ocean: search & run capsules, pipelines, and assets using Code Ocean domain {domain}."

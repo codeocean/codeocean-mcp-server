@@ -23,12 +23,17 @@ from mcp_client import get_tools
 
 SERVER_SCRIPT_PATH = str(Path(__file__).parent.parent / "src" / "codeocean_mcp_server" / "server.py")
 
+# How long the stub API takes to answer a token named "slow-...", standing in for a tool that waits.
+SLOW_API_SECONDS = 3.0
+
 
 class _EchoTokenHandler(BaseHTTPRequestHandler):
     """Answer the custom metadata endpoint with the basic-auth user, which is the API token."""
 
     def do_GET(self):  # noqa: D102, N802
         user = base64.b64decode(self.headers["Authorization"].split(" ")[1]).decode().split(":")[0]
+        if user.startswith("slow-"):
+            time.sleep(SLOW_API_SECONDS)
         body = json.dumps({"categories": [user]}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -108,6 +113,23 @@ def test_concurrent_requests_use_their_own_token(http_server):
     alice, bob = asyncio.run(both())
     assert alice.structuredContent["categories"] == ["alice-token"]
     assert bob.structuredContent["categories"] == ["bob-token"]
+
+
+def test_a_slow_tool_does_not_hold_up_other_requests(http_server):
+    """A tool call still waiting on Code Ocean leaves the server free to serve another session."""
+    url, _ = http_server
+
+    async def call_and_time(token: str):
+        result = await _call_get_custom_metadata(url, token)
+        return result, time.monotonic()
+
+    async def both():
+        return await asyncio.gather(call_and_time("slow-token"), call_and_time("fast-token"))
+
+    (slow, slow_finished), (fast, fast_finished) = asyncio.run(both())
+    assert slow.structuredContent["categories"] == ["slow-token"]
+    assert fast.structuredContent["categories"] == ["fast-token"]
+    assert fast_finished < slow_finished - 1
 
 
 def test_request_without_credential_is_refused(http_server):
