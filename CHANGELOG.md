@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.12.2 (2026-09-03)
+
+- [#42](https://github.com/codeocean/codeocean-mcp-server/pull/42) fix: run synchronous tool bodies in a worker thread
+
 ## 0.12.1 (2026-08-28)
 
 - [#40](https://github.com/codeocean/codeocean-mcp-server/pull/40) fix: apply `LOG_FORMAT` to uvicorn's own log records
