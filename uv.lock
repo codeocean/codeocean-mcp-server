@@ -561,6 +561,7 @@ name = "codeocean-mcp-server"
 version = "0.12.1"
 source = { editable = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "codeocean" },
     { name = "mcp" },
 ]
@@ -577,6 +578,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.5" },
     { name = "codeocean", specifier = ">=0.14.0,<0.15.0" },
     { name = "mcp", specifier = ">=1.23.0,<1.24.0" },
 ]
