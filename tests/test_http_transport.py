@@ -23,15 +23,20 @@ from mcp_client import get_tools
 
 SERVER_SCRIPT_PATH = str(Path(__file__).parent.parent / "src" / "codeocean_mcp_server" / "server.py")
 
-# Upper bound on any wait in the slow-tool rendezvous, so a regression fails the test instead of hanging it.
+# Upper bound on the test's own waits, so a regression fails the test instead of hanging it.
 RENDEZVOUS_TIMEOUT = 5.0
+
+# The stub API's escape hatch from a release that never comes, far enough past the test's own waits
+# that it cannot be what frees the server first.
+HELD_REQUEST_TIMEOUT = 60.0
 
 
 class _EchoTokenHandler(BaseHTTPRequestHandler):
     """Answer the custom metadata endpoint with the basic-auth user, which is the API token.
 
     A token named "slow-..." stands in for a tool that waits on Code Ocean: the handler reports that
-    the request has arrived, then holds the response until the test releases it.
+    the request has arrived, then holds the response until the test releases it. Only a released
+    request is answered, so the test cannot mistake a lapsed hold for a server that stayed free.
     """
 
     slow_started = threading.Event()
@@ -41,7 +46,9 @@ class _EchoTokenHandler(BaseHTTPRequestHandler):
         user = base64.b64decode(self.headers["Authorization"].split(" ")[1]).decode().split(":")[0]
         if user.startswith("slow-"):
             self.slow_started.set()
-            self.slow_released.wait(RENDEZVOUS_TIMEOUT)
+            if not self.slow_released.wait(HELD_REQUEST_TIMEOUT):
+                self.send_error(500, "the held request was never released")
+                return
         body = json.dumps({"categories": [user]}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
