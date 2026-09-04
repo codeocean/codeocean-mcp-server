@@ -23,17 +23,25 @@ from mcp_client import get_tools
 
 SERVER_SCRIPT_PATH = str(Path(__file__).parent.parent / "src" / "codeocean_mcp_server" / "server.py")
 
-# How long the stub API takes to answer a token named "slow-...", standing in for a tool that waits.
-SLOW_API_SECONDS = 3.0
+# Upper bound on any wait in the slow-tool rendezvous, so a regression fails the test instead of hanging it.
+RENDEZVOUS_TIMEOUT = 5.0
 
 
 class _EchoTokenHandler(BaseHTTPRequestHandler):
-    """Answer the custom metadata endpoint with the basic-auth user, which is the API token."""
+    """Answer the custom metadata endpoint with the basic-auth user, which is the API token.
+
+    A token named "slow-..." stands in for a tool that waits on Code Ocean: the handler reports that
+    the request has arrived, then holds the response until the test releases it.
+    """
+
+    slow_started = threading.Event()
+    slow_released = threading.Event()
 
     def do_GET(self):  # noqa: D102, N802
         user = base64.b64decode(self.headers["Authorization"].split(" ")[1]).decode().split(":")[0]
         if user.startswith("slow-"):
-            time.sleep(SLOW_API_SECONDS)
+            self.slow_started.set()
+            self.slow_released.wait(RENDEZVOUS_TIMEOUT)
         body = json.dumps({"categories": [user]}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -116,20 +124,31 @@ def test_concurrent_requests_use_their_own_token(http_server):
 
 
 def test_a_slow_tool_does_not_hold_up_other_requests(http_server):
-    """A tool call still waiting on Code Ocean leaves the server free to serve another session."""
+    """A second session is served while a tool call is still waiting on Code Ocean.
+
+    Fails if the synchronous tool runs on the event loop: the fast request then cannot even
+    initialize until the slow one is released, and times out.
+    """
     url, _ = http_server
+    handler = _EchoTokenHandler
 
-    async def call_and_time(token: str):
-        result = await _call_get_custom_metadata(url, token)
-        return result, time.monotonic()
+    async def fast_while_slow_is_blocked():
+        slow = asyncio.create_task(_call_get_custom_metadata(url, "slow-token"))
+        try:
+            assert await asyncio.to_thread(handler.slow_started.wait, RENDEZVOUS_TIMEOUT), (
+                "the slow tool call never reached the stub API"
+            )
+            try:
+                fast = await asyncio.wait_for(_call_get_custom_metadata(url, "fast-token"), RENDEZVOUS_TIMEOUT)
+            except asyncio.TimeoutError:
+                pytest.fail("the fast request did not complete while the slow tool call was blocked")
+        finally:
+            handler.slow_released.set()
+        return await slow, fast
 
-    async def both():
-        return await asyncio.gather(call_and_time("slow-token"), call_and_time("fast-token"))
-
-    (slow, slow_finished), (fast, fast_finished) = asyncio.run(both())
+    slow, fast = asyncio.run(fast_while_slow_is_blocked())
     assert slow.structuredContent["categories"] == ["slow-token"]
     assert fast.structuredContent["categories"] == ["fast-token"]
-    assert fast_finished < slow_finished - 1
 
 
 def test_request_without_credential_is_refused(http_server):
