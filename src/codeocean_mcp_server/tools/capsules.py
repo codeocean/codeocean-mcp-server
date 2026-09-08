@@ -42,7 +42,7 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
 
     @mcp.tool(
         description=(
-            str(client.capsules.get_capsule.__doc__) + "Use only to fetch metadata for a known capsule ID. "
+            str(client.capsules.get_capsule.__doc__) + " Use only to fetch metadata for a known capsule ID. "
             "Do not use for searching."
         )
     )
