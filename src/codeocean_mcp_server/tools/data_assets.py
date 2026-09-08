@@ -46,10 +46,9 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     @mcp.tool(
         description=(
             str(client.data_assets.get_data_asset_file_urls.__doc__)
-            + "Call only when the data asset is already created and in a ready "
-            "state. If the asset may not yet be ready, first use "
-            "`wait_until_ready` to poll until readiness, then retrieve the "
-            "download URL."
+            + " A draft data asset's files are readable right away: a draft never becomes ready, so never wait on "
+            "one. Only an asset still being created by a copy-based path (captured result, connector, import) may "
+            "need `wait_until_ready` first."
         )
     )
     def get_data_asset_file_urls(data_asset_id: str, file_path: str) -> FileURLs:
@@ -81,7 +80,8 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
             str(client.data_assets.wait_until_ready.__doc__)
             + "Poll until the specified data asset becomes ready before "
             "performing further operations (e.g., downloading files). You can "
-            "set `polling_interval` and optional `timeout`."
+            "set `polling_interval` and optional `timeout`. Never call this on a "
+            "draft: a draft never becomes ready, and its files are readable as they are."
         )
     )
     def wait_until_ready(
