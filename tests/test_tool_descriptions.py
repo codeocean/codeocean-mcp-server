@@ -8,10 +8,15 @@ from mcp_client import get_tools
 
 DESCRIPTIONS = {tool.name: tool.description or "" for tool in get_tools()}
 
+# The first words the server appends to the SDK docstring for get_data_asset_file_urls.
+FILE_URLS_GUIDANCE = "A draft data asset's files are readable right away"
 
-def test_file_urls_description_joins_the_sdk_docstring_with_a_space():
+
+def test_file_urls_description_separates_the_guidance_from_the_sdk_docstring():
     """The appended guidance does not run into the last word of the SDK docstring."""
-    assert "data asset. A draft" in DESCRIPTIONS["get_data_asset_file_urls"]
+    description = DESCRIPTIONS["get_data_asset_file_urls"]
+    assert FILE_URLS_GUIDANCE in description
+    assert description[: description.index(FILE_URLS_GUIDANCE)].endswith((" ", "\n"))
 
 
 def test_file_urls_description_presents_a_draft_as_readable():
