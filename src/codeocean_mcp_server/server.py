@@ -15,6 +15,7 @@ from codeocean_mcp_server.tools import (
     computations,
     custom_metadata,
     data_assets,
+    release,
 )
 
 
@@ -94,6 +95,7 @@ def main():
     data_assets.add_tools(mcp, client)
     computations.add_tools(mcp, client)
     custom_metadata.add_tools(mcp, client)
+    release.add_tools(mcp, client)
 
     mcp.run(transport=args.transport)
 
