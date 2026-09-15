@@ -2,6 +2,7 @@ from codeocean import CodeOcean
 from codeocean.capsule import (
     AppPanel,
     Capsule,
+    CapsuleReleaseJob,
     CapsuleSearchParams,
     Computation,
     DataAssetAttachParams,
@@ -17,7 +18,7 @@ CapsuleSearchParamsModel = dataclass_to_pydantic(CapsuleSearchParams)
 DataAssetAttachParamsModel = dataclass_to_pydantic(DataAssetAttachParams)
 
 
-def add_tools(mcp: FastMCP, client: CodeOcean):
+def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
     """Add capsule tools to the MCP server."""
 
     @mcp.tool(description=(str(client.capsules.search_capsules.__doc__) + " " + str(CapsuleSearchResults.__doc__)))
@@ -86,3 +87,32 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
+
+    # ponytail: the pipeline release methods delegate to the capsule ones over the same route,
+    # so one tool per operation covers both - as run_capsule already does.
+    @mcp.tool(description=(str(client.capsules.release_capsule.__doc__) + " Accepts a capsule ID or a pipeline ID."))
+    def release_capsule(capsule_id: str) -> CapsuleReleaseJob:
+        """Start releasing a new version of an already-released capsule or pipeline."""
+        return client.capsules.release_capsule(capsule_id)
+
+    @mcp.tool(description=(str(client.capsules.get_release_job.__doc__) + " Accepts a capsule ID or a pipeline ID."))
+    def get_release_job(capsule_id: str, job_id: str) -> CapsuleReleaseJob:
+        """Get the status of a capsule or pipeline release job."""
+        return client.capsules.get_release_job(capsule_id, job_id)
+
+    @mcp.tool(
+        description=(
+            str(client.capsules.wait_until_release_completed.__doc__)
+            + " Accepts a capsule ID or a pipeline ID. Set `timeout` to bound the wait - without one this"
+            " polls until the release reaches a terminal state, however long that takes."
+        )
+    )
+    def wait_until_release_completed(
+        capsule_id: str,
+        job_id: str,
+        polling_interval: float = 5,
+        timeout: float | None = None,
+    ) -> CapsuleReleaseJob:
+        """Wait until a capsule or pipeline release job reaches a terminal state."""
+        job = client.capsules.get_release_job(capsule_id, job_id)
+        return client.capsules.wait_until_release_completed(capsule_id, job, polling_interval, timeout)
