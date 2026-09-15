@@ -88,8 +88,6 @@ def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
 
-    # ponytail: the pipeline release methods delegate to the capsule ones over the same route,
-    # so one tool per operation covers both - as run_capsule already does.
     @mcp.tool(description=(str(client.capsules.release_capsule.__doc__) + " Accepts a capsule ID or a pipeline ID."))
     def release_capsule(capsule_id: str) -> CapsuleReleaseJob:
         """Start releasing a new version of an already-released capsule or pipeline."""
