@@ -2,7 +2,7 @@
 
 Model Context Protocol (MCP) server for Code Ocean.
 
-This MCP server provides tools to search and run capsules and pipelines, and manage data assets.
+This MCP server provides tools to search, run, and release capsules and pipelines, and manage data assets.
 
 ## Table of Contents
 
