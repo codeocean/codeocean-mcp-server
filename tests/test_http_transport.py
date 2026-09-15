@@ -16,9 +16,10 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import httpx
 import pytest
 from mcp import ClientSession, StdioServerParameters
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.streamable_http import streamable_http_client
 from mcp_client import get_tools
 
 SERVER_SCRIPT_PATH = str(Path(__file__).parent.parent / "src" / "codeocean_mcp_server" / "server.py")
@@ -109,10 +110,11 @@ def _stdio_server(domain: str) -> StdioServerParameters:
 
 async def _call_get_custom_metadata(url: str, token: str | None, scheme: str = "Bearer"):
     headers = {"Authorization": f"{scheme} {token}"} if token else None
-    async with streamablehttp_client(url, headers=headers) as (read_stream, write_stream, _):
-        async with ClientSession(read_stream, write_stream) as session:
-            await session.initialize()
-            return await session.call_tool("get_custom_metadata", {})
+    async with httpx.AsyncClient(headers=headers) as http_client:
+        async with streamable_http_client(url, http_client=http_client) as (read_stream, write_stream, _):
+            async with ClientSession(read_stream, write_stream) as session:
+                await session.initialize()
+                return await session.call_tool("get_custom_metadata", {})
 
 
 def test_concurrent_requests_use_their_own_token(http_server):
@@ -179,7 +181,7 @@ def test_tool_definitions_match_stdio(http_server):
     url, domain = http_server
 
     async def list_over_http():
-        async with streamablehttp_client(url) as (read_stream, write_stream, _):
+        async with streamable_http_client(url) as (read_stream, write_stream, _):
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()
                 return (await session.list_tools()).tools
