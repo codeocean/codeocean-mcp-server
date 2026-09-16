@@ -7,7 +7,9 @@ from codeocean.capsule import (
     Computation,
     DataAssetAttachParams,
     DataAssetAttachResults,
+    GitSyncResults,
 )
+from codeocean.components import Permissions
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.models import dataclass_to_pydantic
@@ -87,6 +89,22 @@ def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
     def get_capsule_app_panel(capsule_id: str, version: int | None = None) -> AppPanelModel:
         """Retrieve the app panel for a capsule, optionally for a specific version."""
         return client.capsules.get_capsule_app_panel(capsule_id, version)
+
+    @mcp.tool(description=(str(client.capsules.get_permissions.__doc__) + " Accepts a capsule ID or a pipeline ID."))
+    def get_capsule_permissions(capsule_id: str) -> Permissions:
+        """Get the users, groups and everyone-role permissions of a capsule or pipeline."""
+        return client.capsules.get_permissions(capsule_id)
+
+    @mcp.tool(
+        description=(
+            str(client.capsules.sync_capsule.__doc__)
+            + " Accepts a capsule ID or a pipeline ID. This pushes and pulls commits against the external"
+            " Git remote, so call it only when the user asked to sync."
+        )
+    )
+    def sync_capsule(capsule_id: str) -> GitSyncResults:
+        """Sync a capsule or pipeline with its linked external Git repository."""
+        return client.capsules.sync_capsule(capsule_id)
 
     @mcp.tool(description=(str(client.capsules.release_capsule.__doc__) + " Accepts a capsule ID or a pipeline ID."))
     def release_capsule(capsule_id: str) -> CapsuleReleaseJob:
