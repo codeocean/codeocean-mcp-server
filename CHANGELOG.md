@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+## 0.13.0 (2026-09-16)
+
+- [#46](https://github.com/codeocean/codeocean-mcp-server/pull/46) fix: bump mcp to 1.29.x and refresh locked dependencies
+- [#37](https://github.com/codeocean/codeocean-mcp-server/pull/37) feat: add capsule and pipeline release tools
+- [#47](https://github.com/codeocean/codeocean-mcp-server/pull/47) feat: add permissions and Git sync tools
+- **Minimum Code Ocean platform version updated to `4.8.0`.**
+
 ## 0.12.2 (2026-09-03)
 
 - [#42](https://github.com/codeocean/codeocean-mcp-server/pull/42) fix: run synchronous tool bodies in a worker thread
