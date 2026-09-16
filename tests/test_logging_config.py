@@ -1,4 +1,4 @@
-"""End-to-end test for LOG_FORMAT, over the transport that brings a logger of its own along."""
+"""End-to-end tests for LOG_LEVEL and LOG_FORMAT, over the transport that brings a logger of its own along."""
 
 import os
 import re
@@ -30,9 +30,15 @@ def _wait_until_listening(port: int, timeout: float = 30.0):
     raise TimeoutError(f"MCP server did not start listening on port {port}")
 
 
-def _serve_and_request(port: int) -> str:
-    """Serve over streamable HTTP, make one request, and return everything the server logged."""
-    env = {**os.environ, "CODEOCEAN_DOMAIN": "test-domain", "LOG_FORMAT": LOG_FORMAT}
+def _serve_and_request(**variables: str) -> str:
+    """Serve over streamable HTTP with exactly these LOG_* variables set, request once, and return the log.
+
+    Whatever LOG_LEVEL and LOG_FORMAT the test run itself has are dropped, so that only the test
+    decides what the server logs.
+    """
+    env = {name: value for name, value in os.environ.items() if name not in ("LOG_LEVEL", "LOG_FORMAT")}
+    env |= {"CODEOCEAN_DOMAIN": "test-domain", **variables}
+    port = _free_port()
     process = subprocess.Popen(
         [sys.executable, SERVER_SCRIPT_PATH, "--transport", "streamable-http", "--port", str(port)],
         env=env,
@@ -55,7 +61,7 @@ def _serve_and_request(port: int) -> str:
 
 def test_log_format_applies_to_uvicorns_own_records():
     """Uvicorn brings its own logging configuration, in whose format these records would be."""
-    log = _serve_and_request(_free_port())
+    log = _serve_and_request(LOG_FORMAT=LOG_FORMAT)
 
     timestamp = r"^[\d-]{10} [\d:,]+"
     assert re.search(rf"{timestamp} server INFO \[uvicorn\.error\] Uvicorn running", log, re.MULTILINE)
@@ -66,3 +72,28 @@ def test_log_format_applies_to_uvicorns_own_records():
         log,
         re.MULTILINE,
     )
+
+
+def test_log_level_quiets_a_request_the_caller_does_not_want_logged():
+    """Both loggers have to be reached: uvicorn takes its level from FastMCP, the SDK from the root."""
+    log = _serve_and_request(LOG_LEVEL="WARNING", LOG_FORMAT=LOG_FORMAT)
+
+    assert "[uvicorn.access]" not in log
+    assert "[uvicorn.error]" not in log
+    assert "server INFO" not in log
+    # The rejected request is still warned about: the level drops the chatter, not the record
+    # that says something went wrong.
+    assert "server WARNING [" in log
+
+
+def test_log_level_applies_without_a_log_format():
+    """Without LOG_FORMAT the records are FastMCP's own, and the level has to reach those too."""
+    noisy = _serve_and_request()
+    quiet = _serve_and_request(LOG_LEVEL="WARNING")
+
+    # FastMCP's rich-formatted records wrap, so match a word of each.
+    assert "Uvicorn running" in noisy
+    assert "streamable_http_manager" in noisy
+    assert "Uvicorn running" not in quiet
+    assert "streamable_http_manager" not in quiet
+    assert "Invalid Content-Type" in quiet  # The rejected request's WARNING is still logged.

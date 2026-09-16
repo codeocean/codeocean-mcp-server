@@ -3,22 +3,31 @@ import os
 import sys
 
 
+def log_level() -> str:
+    """Return the level to log at, from the LOG_LEVEL environment variable.
+
+    FastMCP has to be constructed with it as well: it configures uvicorn's loggers from its own level,
+    which it takes as a constructor argument that wins over its FASTMCP_LOG_LEVEL environment variable.
+
+    Environment variables:
+        LOG_LEVEL: DEBUG, INFO, WARNING, ERROR or CRITICAL (optional, defaults to INFO)
+    """
+    return os.getenv("LOG_LEVEL", "").strip().upper() or "INFO"
+
+
 def configure_logging(transport: str = "stdio") -> None:
-    """Configure logging based on LOG_FORMAT environment variable.
+    """Configure the root logger from the LOG_LEVEL and LOG_FORMAT environment variables.
 
-    If LOG_FORMAT is set, configures the root logger with a StreamHandler
-    using the specified format string, and, for a transport uvicorn serves,
-    applies the same format to uvicorn's own loggers. This must be called
-    before FastMCP initialization to ensure our configuration takes
-    precedence.
-
-    If LOG_FORMAT is not set or is empty, does nothing and lets FastMCP
-    configure logging with its default settings.
+    LOG_LEVEL sets the root logger's level. LOG_FORMAT gives the root logger a stderr handler
+    with that format and, for a transport uvicorn serves, applies the same format to uvicorn's
+    own loggers. With neither set, logging is left as it is, for whoever embeds the server, or
+    else FastMCP with its defaults, to configure. Must be called before FastMCP is constructed.
 
     Args:
         transport: The transport the server is about to serve on.
 
     Environment variables:
+        LOG_LEVEL: DEBUG, INFO, WARNING, ERROR or CRITICAL (optional, defaults to INFO)
         LOG_FORMAT: Python logging format string (optional)
 
     Examples:
@@ -27,29 +36,23 @@ def configure_logging(transport: str = "stdio") -> None:
                    - "[%(name)s] %(message)s"
 
     Note:
-        Invalid format strings will cause errors when log records are formatted,
-        not during initialization. This typically results in ValueError, KeyError,
-        or AttributeError being raised when logging occurs.
+        A malformed format string fails here, at startup. One that names a field records do not
+        have fails with a ValueError when the first record is formatted instead.
 
     """
     log_format = os.getenv("LOG_FORMAT", "").strip()
 
-    # If LOG_FORMAT is not set or empty, do nothing
+    # The level is applied when either variable is set: a handler of our own leaves FastMCP's own
+    # logging.basicConfig() with nothing to do, so the level would otherwise stay at the default.
+    if log_format or "LOG_LEVEL" in os.environ:
+        logging.root.setLevel(log_level())
+
     if not log_format:
         return
 
-    # Create handler for stderr (same as FastMCP default)
     handler = logging.StreamHandler(sys.stderr)
-
-    # Create formatter with the specified format string
-    # This will raise an error if the format string is invalid (fail fast)
-    formatter = logging.Formatter(log_format)
-    handler.setFormatter(formatter)
-
-    # Configure root logger
-    # This must be done before FastMCP calls logging.basicConfig()
+    handler.setFormatter(logging.Formatter(log_format))
     logging.root.addHandler(handler)
-    logging.root.setLevel(logging.INFO)
 
     if transport == "stdio":
         return

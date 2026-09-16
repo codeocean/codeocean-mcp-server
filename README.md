@@ -230,3 +230,5 @@ This will start a web server where you can:
 The MCP server supports custom log formatting through the `LOG_FORMAT` environment variable. This allows you to control the format of log messages output by the server.
 **Example Format Strings:** `"%(asctime)s %(levelname)s [%(name)s] %(message)s"`.
 If `LOG_FORMAT` is not set, the server uses FastMCP's default logging configuration.
+
+The `LOG_LEVEL` environment variable sets the level the server logs at: `DEBUG`, `INFO` (the default), `WARNING`, `ERROR` or `CRITICAL`. Raising it drops the record the server writes for every request it serves, which is worth doing when the server runs alongside a caller that logs those requests itself.
