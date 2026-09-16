@@ -30,11 +30,16 @@ def _wait_until_listening(port: int, timeout: float = 30.0):
     raise TimeoutError(f"MCP server did not start listening on port {port}")
 
 
-def _serve_and_request(port: int, level: str | None = None) -> str:
-    """Serve over streamable HTTP, make one request, and return everything the server logged."""
-    env = {**os.environ, "CODEOCEAN_DOMAIN": "test-domain", "LOG_FORMAT": LOG_FORMAT}
-    if level:
-        env["LOG_LEVEL"] = level
+def _serve_and_request(port: int, level: str = "INFO", log_format: str | None = LOG_FORMAT) -> str:
+    """Serve over streamable HTTP, make one request, and return everything the server logged.
+
+    Both variables are always set, so that the environment the tests run in cannot decide what the
+    server logs.
+    """
+    env = {**os.environ, "CODEOCEAN_DOMAIN": "test-domain", "LOG_LEVEL": level}
+    env.pop("LOG_FORMAT", None)
+    if log_format:
+        env["LOG_FORMAT"] = log_format
     process = subprocess.Popen(
         [sys.executable, SERVER_SCRIPT_PATH, "--transport", "streamable-http", "--port", str(port)],
         env=env,
@@ -80,3 +85,15 @@ def test_log_level_quiets_a_request_the_caller_does_not_want_logged():
     # The rejected request is still warned about: the level drops the chatter, not the record
     # that says something went wrong.
     assert "server WARNING [" in log
+
+
+def test_log_level_applies_without_a_log_format():
+    """Without LOG_FORMAT the level reaches the root logger through FastMCP's own configuration."""
+    noisy = _serve_and_request(_free_port(), log_format=None)
+    quiet = _serve_and_request(_free_port(), level="WARNING", log_format=None)
+
+    # The records are FastMCP's own rich-formatted ones, which wrap, so match a word of each.
+    assert "Uvicorn running" in noisy
+    assert "streamable_http_manager" in noisy
+    assert "Uvicorn running" not in quiet
+    assert "streamable_http_manager" not in quiet
