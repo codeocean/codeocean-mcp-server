@@ -30,9 +30,11 @@ def _wait_until_listening(port: int, timeout: float = 30.0):
     raise TimeoutError(f"MCP server did not start listening on port {port}")
 
 
-def _serve_and_request(port: int) -> str:
+def _serve_and_request(port: int, level: str | None = None) -> str:
     """Serve over streamable HTTP, make one request, and return everything the server logged."""
     env = {**os.environ, "CODEOCEAN_DOMAIN": "test-domain", "LOG_FORMAT": LOG_FORMAT}
+    if level:
+        env["LOG_LEVEL"] = level
     process = subprocess.Popen(
         [sys.executable, SERVER_SCRIPT_PATH, "--transport", "streamable-http", "--port", str(port)],
         env=env,
@@ -66,3 +68,15 @@ def test_log_format_applies_to_uvicorns_own_records():
         log,
         re.MULTILINE,
     )
+
+
+def test_log_level_quiets_a_request_the_caller_does_not_want_logged():
+    """Both loggers have to be reached: uvicorn takes its level from FastMCP, the SDK from the root."""
+    log = _serve_and_request(_free_port(), level="WARNING")
+
+    assert "[uvicorn.access]" not in log
+    assert "[uvicorn.error]" not in log
+    assert "server INFO" not in log
+    # The rejected request is still warned about: the level drops the chatter, not the record
+    # that says something went wrong.
+    assert "server WARNING [" in log

@@ -9,7 +9,7 @@ from codeocean import CodeOcean
 from mcp.server.fastmcp import FastMCP
 
 from codeocean_mcp_server.client import RequestScopedClient
-from codeocean_mcp_server.logging_config import configure_logging
+from codeocean_mcp_server.logging_config import configure_logging, log_level
 from codeocean_mcp_server.tools import (
     capsules,
     computations,
@@ -80,6 +80,7 @@ def main():
         host=args.host,
         port=args.port,
         stateless_http=True,
+        log_level=log_level(),
     )
 
     if stdio:

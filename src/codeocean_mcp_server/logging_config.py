@@ -3,6 +3,18 @@ import os
 import sys
 
 
+def log_level() -> str:
+    """Return the level to log at, from the LOG_LEVEL environment variable.
+
+    FastMCP takes its own level as a constructor argument, which its settings give precedence over
+    the environment, so the level has to be read here and passed in rather than left to it.
+
+    Environment variables:
+        LOG_LEVEL: DEBUG, INFO, WARNING, ERROR or CRITICAL (optional, defaults to INFO)
+    """
+    return os.getenv("LOG_LEVEL", "").strip().upper() or "INFO"
+
+
 def configure_logging(transport: str = "stdio") -> None:
     """Configure logging based on LOG_FORMAT environment variable.
 
@@ -49,7 +61,7 @@ def configure_logging(transport: str = "stdio") -> None:
     # Configure root logger
     # This must be done before FastMCP calls logging.basicConfig()
     logging.root.addHandler(handler)
-    logging.root.setLevel(logging.INFO)
+    logging.root.setLevel(log_level())
 
     if transport == "stdio":
         return
