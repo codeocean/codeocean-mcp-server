@@ -1,6 +1,7 @@
 import os
 
 from codeocean import CodeOcean
+from codeocean.components import Permissions
 from codeocean.data_asset import (
     DataAsset,
     DataAssetParams,
@@ -61,6 +62,11 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Download a file using the provided URL and return its content."""
         file_urls = client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
         return download_and_read_file(file_urls.download_url)
+
+    @mcp.tool(description=client.data_assets.get_permissions.__doc__)
+    def get_data_asset_permissions(data_asset_id: str) -> Permissions:
+        """Get the users, groups and everyone-role permissions of a data asset."""
+        return client.data_assets.get_permissions(data_asset_id)
 
     @mcp.tool(description=client.data_assets.list_data_asset_files.__doc__)
     def list_data_asset_files(data_asset_id: str, path: str = "") -> Folder:
