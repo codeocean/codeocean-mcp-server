@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.13.1 (2026-09-16)
+
+- [#49](https://github.com/codeocean/codeocean-mcp-server/pull/49) feat: take the log level from `LOG_LEVEL`
+
 ## 0.13.0 (2026-09-16)
 
 - [#46](https://github.com/codeocean/codeocean-mcp-server/pull/46) fix: bump mcp to 1.29.x and refresh locked dependencies
