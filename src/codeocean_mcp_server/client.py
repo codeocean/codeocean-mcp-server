@@ -8,9 +8,9 @@ from starlette.requests import Request
 
 
 @lru_cache(maxsize=32)
-def _cached_client(domain: str, token: str, agent_id: str | None) -> CodeOcean:
-    """Return a client for the given credentials, reusing its HTTP connection pool across requests."""
-    return CodeOcean(domain=domain, token=token, agent_id=agent_id)
+def _cached_client(domain: str, token: str, agent_id: str | None, agent_session_id: str | None = None) -> CodeOcean:
+    """Return a client for the given credentials and session, reusing its HTTP connection pool across requests."""
+    return CodeOcean(domain=domain, token=token, agent_id=agent_id, agent_session_id=agent_session_id)
 
 
 def _bearer_token(request: Request) -> str | None:
@@ -19,6 +19,11 @@ def _bearer_token(request: Request) -> str | None:
     if scheme.lower() != "bearer":
         return None
     return token.strip() or None
+
+
+def _agent_session_id(request: Request) -> str | None:
+    """Return the 'Agent-Session-Id' header, which the SDK forwards so Code Ocean tags what the session creates."""
+    return request.headers.get("agent-session-id", "").strip() or None
 
 
 class RequestScopedClient:
@@ -51,4 +56,4 @@ class RequestScopedClient:
         token = _bearer_token(request) if request is not None else None
         if not token:
             raise ValueError("Missing Code Ocean API token: send it as an 'Authorization: Bearer <token>' header.")
-        return _cached_client(self._domain, token, self._agent_id)
+        return _cached_client(self._domain, token, self._agent_id, _agent_session_id(request))

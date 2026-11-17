@@ -838,16 +838,12 @@ wheels = [
 [[package]]
 name = "codeocean"
 version = "0.17.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/codeocean/codeocean-sdk-python.git?rev=aqua-share-files-sc-204614#c03d2dbcf6962bb28c5bab7d8e946e83ecdecb07" }
 dependencies = [
     { name = "backports-strenum", marker = "python_full_version < '3.11'" },
     { name = "dataclasses-json" },
     { name = "requests" },
     { name = "requests-toolbelt" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/47/4b/ff631fe159251109d60623d0403a52fbc46e01e4ffd75b26f9ff833eee4d/codeocean-0.17.0.tar.gz", hash = "sha256:f3200f23df23c5b26b08e4377899ac8e9b7c3c67820207d93a9be5fb989191db", size = 25601, upload-time = "2026-09-09T17:15:45.646Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/20/9c536f60b6c2b49094e23f14e300a739ebf6c19f02eec698e72f9b11045d/codeocean-0.17.0-py3-none-any.whl", hash = "sha256:bc636846188ed5f5f5da9510053c773bba0cc9f0e12af6c6523b9ae17eb956d7", size = 27958, upload-time = "2026-09-09T17:15:46.531Z" },
 ]
 
 [[package]]
@@ -874,7 +870,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anyio", specifier = ">=4.5" },
-    { name = "codeocean", specifier = ">=0.17.0,<0.18.0" },
+    { name = "codeocean", git = "https://github.com/codeocean/codeocean-sdk-python.git?rev=aqua-share-files-sc-204614" },
     { name = "mcp", specifier = ">=1.29.1,<1.30.0" },
 ]
 
