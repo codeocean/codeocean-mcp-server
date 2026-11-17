@@ -211,6 +211,9 @@ CODEOCEAN_DOMAIN=https://acmecorp.codeocean.com codeocean-mcp-server --transport
 Clients then pass their own token as `Authorization: Bearer <YOUR_API_KEY>` on every request; `CODEOCEAN_TOKEN`
 is not used, and a request without a token is refused. The endpoint is `http://<host>:<port>/mcp`.
 
+An agent acting within a chat session can also pass `Agent-Session-Id: <session id>`; the server forwards it on
+every Code Ocean call made for that request, so Code Ocean tags the runs and data assets the session creates.
+
 ## Local Testing
 
 You can test the MCP server locally during development with [MCP Inspector](https://modelcontextprotocol.io/legacy/tools/inspector):
