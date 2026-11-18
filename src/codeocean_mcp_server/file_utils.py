@@ -48,7 +48,10 @@ def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONT
         else:  # server ignored Range
             start, total = 0, int(response.headers["Content-Length"]) if "Content-Length" in response.headers else None
         data = response.raw.read(limit)
-        at_end = start + len(data) >= total if total is not None else len(data) < limit
+        if total is not None:
+            at_end = start + len(data) >= total
+        else:  # a 206 tail runs to the end of the file even when its start is unknown
+            at_end = len(data) < limit or (offset < 0 and response.status_code == 206)
 
         if b"\0" in data:
             size = f"{total:,} bytes" if total is not None else "unknown size"

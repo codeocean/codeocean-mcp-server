@@ -138,6 +138,13 @@ def test_missing_content_range_reads_without_a_total(base_url):
     )
 
 
+def test_tail_without_content_range_ends_at_the_end_of_the_file(base_url):
+    """A 206 tail without Content-Range has no next_offset, since a suffix range always reaches the end."""
+    result = download_and_read_file(f"{base_url}/no-content-range/log", offset=-100, limit=20)
+    assert result.next_offset is None
+    assert result.content.endswith("ValueError: boom\n")
+
+
 def test_limit_below_one_still_advances(base_url):
     """A zero or negative limit reads one byte instead of returning a next_offset that never moves."""
     for limit in (0, -5):
