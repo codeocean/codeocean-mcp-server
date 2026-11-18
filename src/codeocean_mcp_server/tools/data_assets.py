@@ -12,7 +12,12 @@ from codeocean.data_asset import (
 )
 from mcp.server.fastmcp import FastMCP
 
-from codeocean_mcp_server.file_utils import download_and_read_file
+from codeocean_mcp_server.file_utils import (
+    MAX_FILE_CONTENT_LENGTH,
+    READ_FILE_DESCRIPTION,
+    FileContent,
+    download_and_read_file,
+)
 from codeocean_mcp_server.models import dataclass_to_pydantic
 from codeocean_mcp_server.search import DataAssetSearchResults
 
@@ -57,11 +62,16 @@ def add_tools(mcp: FastMCP, client: CodeOcean):
         """Get view and download URLs for a specific file in a data asset."""
         return client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
 
-    @mcp.tool(description=("Use when you want to read the content of a file from a data asset"))
-    def download_and_read_a_file_from_data_asset(data_asset_id: str, file_path: str) -> str:
-        """Download a file using the provided URL and return its content."""
+    @mcp.tool(description="Use when you want to read the content of a file from a data asset." + READ_FILE_DESCRIPTION)
+    def download_and_read_a_file_from_data_asset(
+        data_asset_id: str,
+        file_path: str,
+        offset: int = 0,
+        limit: int = MAX_FILE_CONTENT_LENGTH,
+    ) -> FileContent:
+        """Read a byte range of a file, from the end when offset is negative."""
         file_urls = client.data_assets.get_data_asset_file_urls(data_asset_id, file_path)
-        return download_and_read_file(file_urls.download_url)
+        return download_and_read_file(file_urls.download_url, offset, limit)
 
     @mcp.tool(description=client.data_assets.get_permissions.__doc__)
     def get_data_asset_permissions(data_asset_id: str) -> Permissions:
