@@ -8,7 +8,7 @@ from codeocean.computation import (
 from codeocean.data_asset import DataAssetAttachParams, DataAssetAttachResults
 from mcp.server.fastmcp import FastMCP
 
-from codeocean_mcp_server.file_utils import download_and_read_file
+from codeocean_mcp_server.file_utils import MAX_FILE_CONTENT_LENGTH, FileContent, download_and_read_file
 from codeocean_mcp_server.models import dataclass_to_pydantic
 
 RunParamsModel = dataclass_to_pydantic(RunParams)
@@ -56,11 +56,18 @@ def add_tools(mcp: FastMCP, client: CodeOcean):  # noqa: C901
         """Get view and download URLs for a specific result file from computation."""
         return client.computations.get_result_file_urls(computation_id, file_path)
 
-    @mcp.tool(description=("Use when you want to read the content of a file from a computation"))
-    def download_and_read_a_file_from_computation(computation_id: str, file_path: str) -> str:
-        """Download a file using the provided URL and return its content."""
+    @mcp.tool(
+        description="Use when you want to read the content of a file from a computation. " + str(FileContent.__doc__)
+    )
+    def download_and_read_a_file_from_computation(
+        computation_id: str,
+        file_path: str,
+        offset: int = 0,
+        limit: int = MAX_FILE_CONTENT_LENGTH,
+    ) -> FileContent:
+        """Read a byte range of a file, from the end when offset is negative."""
         file_urls = client.computations.get_result_file_urls(computation_id, file_path)
-        return download_and_read_file(file_urls.download_url)
+        return download_and_read_file(file_urls.download_url, offset, limit)
 
     @mcp.tool(description=client.computations.rename_computation.__doc__)
     def rename_computation(computation_id: str, name: str) -> None:
