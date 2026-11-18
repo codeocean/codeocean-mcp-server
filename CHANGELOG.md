@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+## 0.14.0 (2026-11-18)
+
+- [#53](https://github.com/codeocean/codeocean-mcp-server/pull/53) feat: read file tails and pages with offset/limit
+- [#51](https://github.com/codeocean/codeocean-mcp-server/pull/51) fix: keep the build off hatchling 1.32.1
+
 ## 0.13.1 (2026-09-16)
 
 - [#49](https://github.com/codeocean/codeocean-mcp-server/pull/49) feat: take the log level from `LOG_LEVEL`
