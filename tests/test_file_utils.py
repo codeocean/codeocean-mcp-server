@@ -5,6 +5,7 @@ import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
+import requests
 
 from codeocean_mcp_server.file_utils import MAX_FILE_CONTENT_LENGTH, FileContent, download_and_read_file
 
@@ -13,12 +14,17 @@ ERROR = b"Traceback (most recent call last):\nValueError: boom\n"
 
 
 class _Handler(BaseHTTPRequestHandler):
-    """Serve the requested body, honoring Range headers unless the path is /no-range."""
+    """Serve the requested body, honoring Range headers unless the path is /no-range.
+
+    A /no-content-range path answers 206 without the Content-Range header.
+    """
 
     files: dict[str, bytes] = {}
+    content_types: dict[str, str] = {}
 
     def do_GET(self):  # noqa: N802
-        body = self.files[self.path.removeprefix("/no-range")]
+        self.content_type = self.content_types.get(self.path, "text/plain; charset=utf-8")
+        body = self.files[self.path.removeprefix("/no-range").removeprefix("/no-content-range")]
         match = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
         if self.path.startswith("/no-range") or not match:
             return self._send(200, body, {})
@@ -29,11 +35,12 @@ class _Handler(BaseHTTPRequestHandler):
             start, end = max(len(body) - int(last), 0), len(body) - 1
         if start >= len(body):
             return self._send(416, b"", {"Content-Range": f"bytes */{len(body)}"})
-        self._send(206, body[start : end + 1], {"Content-Range": f"bytes {start}-{end}/{len(body)}"})
+        headers = {"Content-Range": f"bytes {start}-{end}/{len(body)}"}
+        self._send(206, body[start : end + 1], {} if self.path.startswith("/no-content-range") else headers)
 
     def _send(self, status, body, headers):
         self.send_response(status)
-        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Type", self.content_type)
         self.send_header("Content-Length", str(len(body)))
         for name, value in headers.items():
             self.send_header(name, value)
@@ -52,7 +59,10 @@ def base_url():
         "/small": b"one\ntwo\nthree\n",
         "/long-last-line": b"short\n" + b"y" * 1000 + b"\n",
         "/long-first-line": b"x" * 150 + b"\nend\n",
+        "/binary": b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR",
+        "/no-charset": "naïve → ✓\n".encode(),
     }
+    _Handler.content_types = {"/no-charset": "text/plain"}
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     yield f"http://127.0.0.1:{server.server_port}"
@@ -121,8 +131,35 @@ def test_server_ignoring_range_falls_back_to_the_start(base_url):
     )
 
 
-def test_download_error(base_url):
-    """A failed download reports the error in the content."""
-    result = download_and_read_file("http://127.0.0.1:1/missing")
-    assert result.content.startswith("Download error:")
+def test_missing_content_range_reads_without_a_total(base_url):
+    """A 206 without Content-Range is read from the requested offset, with an unknown size."""
+    assert download_and_read_file(f"{base_url}/no-content-range/small", offset=4, limit=6) == FileContent(
+        content="two\n", offset=4, next_offset=8, total_bytes=None
+    )
+
+
+def test_limit_below_one_still_advances(base_url):
+    """A zero or negative limit reads one byte instead of returning a next_offset that never moves."""
+    for limit in (0, -5):
+        assert download_and_read_file(f"{base_url}/small", limit=limit) == FileContent(
+            content="o", offset=0, next_offset=1, total_bytes=14
+        )
+
+
+def test_binary_file_is_reported_not_returned(base_url):
+    """A file with NUL bytes returns a short notice with its size and no next_offset."""
+    result = download_and_read_file(f"{base_url}/binary")
+    assert result.content.startswith("Binary file (16 bytes)")
     assert result.next_offset is None
+    assert result.total_bytes == 16
+
+
+def test_text_without_charset_is_read_as_utf8(base_url):
+    """A text/plain response with no charset is decoded as UTF-8, not ISO-8859-1."""
+    assert download_and_read_file(f"{base_url}/no-charset").content == "naïve → ✓\n"
+
+
+def test_download_error_raises():
+    """A failed download fails the call instead of returning the error as file content."""
+    with pytest.raises(requests.RequestException):
+        download_and_read_file("http://127.0.0.1:1/missing")
