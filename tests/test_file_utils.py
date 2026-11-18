@@ -59,6 +59,7 @@ def base_url():
         "/long-line": b"x" * 1000,
         "/long-last-line": b"short\n" + b"y" * 1000 + b"\n",
         "/leading-newline": b"\n" + b"z" * 200,
+        "/long-first-line": b"x" * 150 + b"\nend\n",
         "/euro": "€".encode() * 100,
     }
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
@@ -106,11 +107,11 @@ def test_offset_on_a_line_boundary_keeps_that_line(base_url):
     )
 
 
-def test_offset_mid_line_starts_at_the_next_line(base_url):
-    """A range that starts mid-line drops the partial first line."""
+def test_offset_mid_line_starts_exactly_there(base_url):
+    """A non-negative offset that starts mid-line keeps the partial first line."""
     result = download_and_read_file(f"{base_url}/log", offset=105, limit=30)
-    assert result.content == "line 0011\nline 0012\n"
-    assert result.offset == 110
+    assert result.content == "0010\nline 0011\nline 0012\n"
+    assert result.offset == 105
 
 
 def test_whole_small_file(base_url):
@@ -145,6 +146,17 @@ def test_a_line_longer_than_the_limit_is_returned_as_is(base_url):
     """A single line longer than the window still makes progress."""
     result = download_and_read_file(f"{base_url}/long-line", offset=10, limit=100)
     assert result == FileContent(content="x" * 100, offset=10, next_offset=110, total_bytes=1000)
+
+
+def test_paging_keeps_a_line_longer_than_the_limit(base_url):
+    """Following next_offset through a line longer than one page returns the whole line."""
+    content, offset = "", 0
+    while offset is not None:
+        result = download_and_read_file(f"{base_url}/long-first-line", offset=offset, limit=100)
+        assert result.offset == offset
+        content += result.content
+        offset = result.next_offset
+    assert content == "x" * 150 + "\nend\n"
 
 
 def test_paging_from_a_leading_newline_advances(base_url):

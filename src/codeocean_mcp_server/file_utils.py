@@ -39,16 +39,16 @@ def _parse_content_range(header: Optional[str]) -> tuple[Optional[int], Optional
 
 
 def _range_header(offset: int, limit: int) -> str:
-    """Build a Range header that reads one extra byte before the window to find where its first line starts."""
+    """Build a Range header; a tail reads one extra byte before the window to find where its first line starts."""
     if offset < 0:
         return f"bytes=-{min(-offset, limit) + 1}"
-    return f"bytes={max(offset - 1, 0)}-{offset + limit - 1}"
+    return f"bytes={offset}-{offset + limit - 1}"
 
 
 def _has_look_behind(start: int, offset: int, limit: int, total: Optional[int]) -> bool:
     """Whether the first byte of a 206 response is the one before the window that `_range_header` asked for."""
     if offset >= 0:
-        return 0 < offset and start < offset
+        return False
     if total is None:
         return start > 0
     return start < total - min(-offset, limit)
@@ -98,9 +98,9 @@ def _unsatisfiable_range_total(response: requests.Response) -> Optional[int]:
 def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONTENT_LENGTH) -> FileContent:
     """Read up to `limit` bytes of the file at `url`, from `offset`, or from the end when `offset` is negative.
 
-    The range is trimmed to whole lines: a partial first line is dropped when the range doesn't start at
-    the beginning of the file, and a partial last line when it doesn't reach the end. A single line longer
-    than the range is returned as-is.
+    A tail is trimmed to start on a whole line; a non-negative offset starts exactly where asked, so paging
+    with `next_offset` loses nothing. A partial last line is dropped when the range doesn't reach the end of
+    the file. A single line longer than the range is returned as-is.
     """
     limit = max(1, min(limit, MAX_FILE_CONTENT_LENGTH))
     try:
