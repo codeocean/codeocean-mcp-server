@@ -13,12 +13,15 @@ ERROR = b"Traceback (most recent call last):\nValueError: boom\n"
 
 
 class _Handler(BaseHTTPRequestHandler):
-    """Serve the requested body, honoring Range headers the way S3 does unless the path is /no-range."""
+    """Serve the requested body, honoring Range headers unless the path is /no-range.
+
+    Under /s3, an unsatisfiable range is answered the way S3 does: no Content-Range, the size in the XML body.
+    """
 
     files: dict[str, bytes] = {}
 
     def do_GET(self):  # noqa: N802
-        body = self.files[self.path.removeprefix("/no-range")]
+        body = self.files[self.path.removeprefix("/no-range").removeprefix("/s3")]
         match = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))
         if self.path.startswith("/no-range") or not match:
             return self._send(200, body, {})
@@ -28,6 +31,9 @@ class _Handler(BaseHTTPRequestHandler):
         else:
             start, end = max(len(body) - int(last), 0), len(body) - 1
         if start >= len(body):
+            if self.path.startswith("/s3"):
+                error = f"<Error><Code>InvalidRange</Code><ActualObjectSize>{len(body)}</ActualObjectSize></Error>"
+                return self._send(416, error.encode(), {})
             return self._send(416, b"", {"Content-Range": f"bytes */{len(body)}"})
         self._send(206, body[start : end + 1], {"Content-Range": f"bytes {start}-{end}/{len(body)}"})
 
@@ -47,7 +53,12 @@ class _Handler(BaseHTTPRequestHandler):
 @pytest.fixture(scope="module")
 def base_url():
     """Run a local file server for the tests."""
-    _Handler.files = {"/log": LOG + ERROR, "/small": b"one\ntwo\nthree\n", "/long-line": b"x" * 1000}
+    _Handler.files = {
+        "/log": LOG + ERROR,
+        "/small": b"one\ntwo\nthree\n",
+        "/long-line": b"x" * 1000,
+        "/long-last-line": b"short\n" + b"y" * 1000 + b"\n",
+    }
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     yield f"http://127.0.0.1:{server.server_port}"
@@ -111,6 +122,20 @@ def test_offset_past_the_end_returns_empty_content(base_url):
     """An offset at or past the end of the file is not an error."""
     assert download_and_read_file(f"{base_url}/small", offset=14) == FileContent(
         content="", offset=14, next_offset=None, total_bytes=14
+    )
+
+
+def test_offset_past_the_end_reads_the_size_from_an_s3_error_body(base_url):
+    """S3 sends no Content-Range on a 416, so the size comes from the XML error body."""
+    assert download_and_read_file(f"{base_url}/s3/small", offset=100) == FileContent(
+        content="", offset=100, next_offset=None, total_bytes=14
+    )
+
+
+def test_tail_inside_the_last_line_is_returned_as_is(base_url):
+    """A tail shorter than the file's last line returns the end of that line, not nothing."""
+    assert download_and_read_file(f"{base_url}/long-last-line", offset=-20) == FileContent(
+        content="y" * 19 + "\n", offset=987, next_offset=None, total_bytes=1007
     )
 
 

@@ -16,6 +16,7 @@ READ_FILE_DESCRIPTION = (
 )
 
 _CONTENT_RANGE_RE = re.compile(r"bytes (?:(\d+)-(\d+)|\*)/(\d+|\*)")
+_ACTUAL_OBJECT_SIZE_RE = re.compile(rb"<ActualObjectSize>(\d+)</ActualObjectSize>")
 
 
 class FileContent(BaseModel):
@@ -43,6 +44,15 @@ def _range_header(offset: int, limit: int) -> str:
     return f"bytes={max(offset - 1, 0)}-{offset + limit - 1}"
 
 
+def _unsatisfiable_range_total(response: requests.Response) -> Optional[int]:
+    """Return the file size from a 416 response: its Content-Range, or the XML error body S3 sends instead."""
+    _, total = _parse_content_range(response.headers.get("Content-Range"))
+    if total is None:
+        match = _ACTUAL_OBJECT_SIZE_RE.search(response.raw.read(MAX_FILE_CONTENT_LENGTH))
+        total = int(match.group(1)) if match else None
+    return total
+
+
 def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONTENT_LENGTH) -> FileContent:
     """Read up to `limit` bytes of the file at `url`, from `offset`, or from the end when `offset` is negative.
 
@@ -56,8 +66,7 @@ def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONT
             url, headers={"Range": _range_header(offset, limit)}, timeout=DOWNLOAD_TIMEOUT, stream=True
         ) as response:
             if response.status_code == 416:
-                _, total = _parse_content_range(response.headers.get("Content-Range"))
-                return FileContent(content="", offset=max(offset, 0), total_bytes=total)
+                return FileContent(content="", offset=max(offset, 0), total_bytes=_unsatisfiable_range_total(response))
             response.raise_for_status()
             encoding = response.encoding or "utf-8"
 
@@ -67,9 +76,9 @@ def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONT
                 data = response.raw.read(limit + 1)
                 if start > 0:
                     # The first byte is the one before the window; drop through the first newline so the
-                    # content starts on a line boundary.
+                    # content starts on a line boundary. A window inside a single line is kept as-is.
                     first_newline = data.find(b"\n")
-                    drop = first_newline + 1 if first_newline != -1 else 1
+                    drop = first_newline + 1 if 0 <= first_newline < len(data) - 1 else 1
                     data, start = data[drop:], start + drop
             else:
                 # The server ignored the Range header: read from the start of the file.
