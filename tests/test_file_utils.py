@@ -58,6 +58,8 @@ def base_url():
         "/small": b"one\ntwo\nthree\n",
         "/long-line": b"x" * 1000,
         "/long-last-line": b"short\n" + b"y" * 1000 + b"\n",
+        "/leading-newline": b"\n" + b"z" * 200,
+        "/euro": "€".encode() * 100,
     }
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
     threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -143,6 +145,35 @@ def test_a_line_longer_than_the_limit_is_returned_as_is(base_url):
     """A single line longer than the window still makes progress."""
     result = download_and_read_file(f"{base_url}/long-line", offset=10, limit=100)
     assert result == FileContent(content="x" * 100, offset=10, next_offset=110, total_bytes=1000)
+
+
+def test_paging_from_a_leading_newline_advances(base_url):
+    """At offset 1 the byte before the window is byte zero; it is not returned again."""
+    result = download_and_read_file(f"{base_url}/leading-newline", offset=1, limit=100)
+    assert result == FileContent(content="z" * 100, offset=1, next_offset=101, total_bytes=201)
+
+
+def test_tail_whose_look_behind_is_byte_zero_drops_it(base_url):
+    """A tail one byte shorter than the file does not return the file's first byte."""
+    result = download_and_read_file(f"{base_url}/leading-newline", offset=-200)
+    assert result == FileContent(content="z" * 200, offset=1, next_offset=None, total_bytes=201)
+
+
+def test_paging_keeps_multibyte_characters_split_across_windows(base_url):
+    """Pages end on whole UTF-8 characters, so paging returns every character."""
+    content, offset = "", 0
+    while offset is not None:
+        result = download_and_read_file(f"{base_url}/euro", offset=offset, limit=100)
+        assert result.offset == offset
+        content += result.content
+        offset = result.next_offset
+    assert content == "€" * 100
+
+
+def test_offset_inside_a_multibyte_character_starts_at_the_next_one(base_url):
+    """A range that starts inside a character reports the offset of the first whole one."""
+    result = download_and_read_file(f"{base_url}/euro", offset=4, limit=10)
+    assert result == FileContent(content="€€", offset=6, next_offset=12, total_bytes=300)
 
 
 def test_server_ignoring_range_falls_back_to_the_start(base_url):

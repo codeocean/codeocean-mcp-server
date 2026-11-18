@@ -1,5 +1,6 @@
 """File utilities for downloading and reading files."""
 
+import codecs
 import re
 from typing import Optional
 
@@ -44,6 +45,47 @@ def _range_header(offset: int, limit: int) -> str:
     return f"bytes={max(offset - 1, 0)}-{offset + limit - 1}"
 
 
+def _has_look_behind(start: int, offset: int, limit: int, total: Optional[int]) -> bool:
+    """Whether the first byte of a 206 response is the one before the window that `_range_header` asked for."""
+    if offset >= 0:
+        return 0 < offset and start < offset
+    if total is None:
+        return start > 0
+    return start < total - min(-offset, limit)
+
+
+def _utf8_char_size(lead: int) -> int:
+    """Return how many bytes the UTF-8 character starting with `lead` takes."""
+    if lead >> 5 == 0b110:
+        return 2
+    if lead >> 4 == 0b1110:
+        return 3
+    if lead >> 3 == 0b11110:
+        return 4
+    return 1
+
+
+def _trim_to_whole_utf8(data: bytes, at_end: bool) -> tuple[bytes, int]:
+    """Drop a UTF-8 character cut off at either edge of `data`; at the end of the file the last one is kept.
+
+    Returns the trimmed data and how many bytes were dropped from its front. Data that holds no whole
+    character is returned as-is so reads still advance.
+    """
+    head = 0
+    while head < min(len(data), 3) and data[head] & 0xC0 == 0x80:
+        head += 1
+    tail = len(data)
+    if not at_end:
+        lead = tail - 1
+        while lead > head and tail - lead < 4 and data[lead] & 0xC0 == 0x80:
+            lead -= 1
+        if lead >= head and tail - lead < _utf8_char_size(data[lead]):
+            tail = lead
+    if tail <= head:
+        return data, 0
+    return data[head:tail], head
+
+
 def _unsatisfiable_range_total(response: requests.Response) -> Optional[int]:
     """Return the file size from a 416 response: its Content-Range, or the XML error body S3 sends instead."""
     _, total = _parse_content_range(response.headers.get("Content-Range"))
@@ -74,7 +116,7 @@ def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONT
                 start, total = _parse_content_range(response.headers.get("Content-Range"))
                 start = start or 0
                 data = response.raw.read(limit + 1)
-                if start > 0:
+                if _has_look_behind(start, offset, limit, total):
                     # The first byte is the one before the window; drop through the first newline so the
                     # content starts on a line boundary. A window inside a single line is kept as-is.
                     first_newline = data.find(b"\n")
@@ -95,7 +137,10 @@ def download_and_read_file(url: str, offset: int = 0, limit: int = MAX_FILE_CONT
                 last_newline = data.rfind(b"\n")
                 if last_newline != -1:
                     data = data[: last_newline + 1]
-                    end = start + len(data)
+            if codecs.lookup(encoding).name == "utf-8":
+                data, skipped = _trim_to_whole_utf8(data, at_end)
+                start += skipped
+            end = start + len(data)
 
             return FileContent(
                 content=data.decode(encoding, errors="ignore"),
