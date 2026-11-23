@@ -12,7 +12,7 @@ classifiers = [
 ]
 dependencies = [
   "anyio>=4.5",
-  "codeocean>=0.17.0,<0.18.0",
+  "codeocean>=0.18.0,<0.19.0",
   "mcp>=1.29.1,<1.30.0",
 ]
 license = "MIT"
