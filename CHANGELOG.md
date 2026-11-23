@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.15.1 (2026-11-23)
+
+- [#57](https://github.com/codeocean/codeocean-mcp-server/pull/57) fix: bump mcp to 1.30.x
+
 ## 0.15.0 (2026-11-23)
 
 - [#55](https://github.com/codeocean/codeocean-mcp-server/pull/55) feat: forward the Agent-Session-Id request header to Code Ocean
