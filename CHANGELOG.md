@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+## 0.15.0 (2026-11-23)
+
+- [#55](https://github.com/codeocean/codeocean-mcp-server/pull/55) feat: forward the Agent-Session-Id request header to Code Ocean
+
 ## 0.14.0 (2026-11-18)
 
 - [#53](https://github.com/codeocean/codeocean-mcp-server/pull/53) feat: read file tails and pages with offset/limit
