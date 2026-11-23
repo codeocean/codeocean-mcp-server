@@ -12,7 +12,7 @@ classifiers = [
 ]
 dependencies = [
   "anyio>=4.5",
-  "codeocean @ git+https://github.com/codeocean/codeocean-sdk-python.git@aqua-share-files-sc-204614",
+  "codeocean>=0.18.0,<0.19.0",
   "mcp>=1.29.1,<1.30.0",
 ]
 license = "MIT"
