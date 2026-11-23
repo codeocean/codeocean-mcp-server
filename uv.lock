@@ -837,7 +837,7 @@ wheels = [
 
 [[package]]
 name = "codeocean"
-version = "0.17.0"
+version = "0.18.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "backports-strenum", marker = "python_full_version < '3.11'" },
@@ -845,9 +845,9 @@ dependencies = [
     { name = "requests" },
     { name = "requests-toolbelt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/47/4b/ff631fe159251109d60623d0403a52fbc46e01e4ffd75b26f9ff833eee4d/codeocean-0.17.0.tar.gz", hash = "sha256:f3200f23df23c5b26b08e4377899ac8e9b7c3c67820207d93a9be5fb989191db", size = 25601, upload-time = "2026-09-09T17:15:45.646Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/52/03273d3fe95810cf05256fbf8456dcaca52126528c38f40f8b5c1bc90d63/codeocean-0.18.0.tar.gz", hash = "sha256:802b203a02d8f2705dc160da3d0bcb2a68bd3f2d9e83221045776d38d42a8ae3", size = 25788, upload-time = "2026-11-23T12:52:23.349Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/20/9c536f60b6c2b49094e23f14e300a739ebf6c19f02eec698e72f9b11045d/codeocean-0.17.0-py3-none-any.whl", hash = "sha256:bc636846188ed5f5f5da9510053c773bba0cc9f0e12af6c6523b9ae17eb956d7", size = 27958, upload-time = "2026-09-09T17:15:46.531Z" },
+    { url = "https://files.pythonhosted.org/packages/80/80/81a4c84de159e255d0e9f392e2dd8d508c1782d255e8c8684b8714c31376/codeocean-0.18.0-py3-none-any.whl", hash = "sha256:4cff77725e1339bbe2e334f3e288f063f002a196ca6ce9ffbe554ed8b4a6d18a", size = 28017, upload-time = "2026-11-23T12:52:24.218Z" },
 ]
 
 [[package]]
@@ -874,7 +874,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anyio", specifier = ">=4.5" },
-    { name = "codeocean", specifier = ">=0.17.0,<0.18.0" },
+    { name = "codeocean", specifier = ">=0.18.0,<0.19.0" },
     { name = "mcp", specifier = ">=1.29.1,<1.30.0" },
 ]
 

@@ -1,7 +1,7 @@
 """End-to-end tests for the streamable-HTTP transport and its per-request credentials.
 
-A stub Code Ocean API echoes back the token it was called with, so each assertion follows a token
-from the MCP request header all the way to the outgoing API call.
+A stub Code Ocean API echoes back the token and agent session it was called with, so each assertion
+follows them from the MCP request headers all the way to the outgoing API call.
 """
 
 import asyncio
@@ -35,6 +35,8 @@ HELD_REQUEST_TIMEOUT = 60.0
 class _EchoTokenHandler(BaseHTTPRequestHandler):
     """Answer the custom metadata endpoint with the basic-auth user, which is the API token.
 
+    An 'Agent-Session-Id' header, when the call carries one, is echoed as a second category.
+
     A token named "slow-..." stands in for a tool that waits on Code Ocean: the handler reports that
     the request has arrived, then holds the response until the test releases it. Only a released
     request is answered, so the test cannot mistake a lapsed hold for a server that stayed free.
@@ -50,7 +52,10 @@ class _EchoTokenHandler(BaseHTTPRequestHandler):
             if not self.slow_released.wait(HELD_REQUEST_TIMEOUT):
                 self.send_error(500, "the held request was never released")
                 return
-        body = json.dumps({"categories": [user]}).encode()
+        categories = [user]
+        if agent_session_id := self.headers.get("Agent-Session-Id"):
+            categories.append(agent_session_id)
+        body = json.dumps({"categories": categories}).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
@@ -108,8 +113,12 @@ def _stdio_server(domain: str) -> StdioServerParameters:
     )
 
 
-async def _call_get_custom_metadata(url: str, token: str | None, scheme: str = "Bearer"):
-    headers = {"Authorization": f"{scheme} {token}"} if token else None
+async def _call_get_custom_metadata(
+    url: str, token: str | None, scheme: str = "Bearer", agent_session_id: str | None = None
+):
+    headers = {"Authorization": f"{scheme} {token}"} if token else {}
+    if agent_session_id:
+        headers["Agent-Session-Id"] = agent_session_id
     async with httpx.AsyncClient(headers=headers) as http_client:
         async with streamable_http_client(url, http_client=http_client) as (read_stream, write_stream, _):
             async with ClientSession(read_stream, write_stream) as session:
@@ -158,6 +167,23 @@ def test_a_slow_tool_does_not_hold_up_other_requests(http_server):
     slow, fast = asyncio.run(fast_while_slow_is_blocked())
     assert slow.structuredContent["categories"] == ["slow-token"]
     assert fast.structuredContent["categories"] == ["fast-token"]
+
+
+def test_agent_session_id_is_forwarded_per_request(http_server):
+    """Each request forwards its own Agent-Session-Id header, and a request without one forwards none."""
+    url, _ = http_server
+
+    async def three():
+        return await asyncio.gather(
+            _call_get_custom_metadata(url, "alice-token", agent_session_id="session-1"),
+            _call_get_custom_metadata(url, "alice-token", agent_session_id="session-2"),
+            _call_get_custom_metadata(url, "alice-token"),
+        )
+
+    first, second, none = asyncio.run(three())
+    assert first.structuredContent["categories"] == ["alice-token", "session-1"]
+    assert second.structuredContent["categories"] == ["alice-token", "session-2"]
+    assert none.structuredContent["categories"] == ["alice-token"]
 
 
 def test_request_without_credential_is_refused(http_server):
